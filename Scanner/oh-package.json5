@@ -4,7 +4,7 @@
   "description": "使用customScan自定义扫一扫组件",
   "main": "Index.ets",
   "author": "coner",
-  "homepage": "https://github.com/conerjoy",
+  "homepage": "https://github.com/conerjoy/ScanDemo-harmony",
   "license": "Apache-2.0",
   "dependencies": {}
 }
