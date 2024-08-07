@@ -1,9 +1,10 @@
 {
-  "name": "scanner",
+  "name": "@coner/scanner",
   "version": "1.0.0",
-  "description": "Please describe the basic information.",
+  "description": "扫一扫组件",
   "main": "Index.ets",
-  "author": "",
+  "author": "coner",
+  "homepage": "https://github.com/conerjoy",
   "license": "Apache-2.0",
   "dependencies": {}
 }
