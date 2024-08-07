@@ -46,7 +46,7 @@ export struct Scanner {
   @Prop scanIntervalTime: number = 1000 // 扫码间隔时间
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
   areaOffset: number = 100 // 二维码在框中的偏移量
-  controller?: ScannerController
+  controller?: ScannerController // 扫码控制类
   // ------------------------------------------------------------------------
   @State scanLineY: number = 0
   private mXComponentController: XComponentController = new XComponentController()
@@ -96,7 +96,7 @@ export struct Scanner {
   }
 
   /**
-   * 选择相片
+   * 选择图片识别二维码
    */
   pickPhoto() {
     requestPermissionsFromUser(getContext(this) as common.UIAbilityContext, 'ohos.permission.READ_MEDIA')
@@ -134,7 +134,7 @@ export struct Scanner {
   }
 
   /**
-   * 打开闪光点
+   * 打开闪光灯
    */
   openLight() {
     if (this.isLoaded && !this.isLightOpen) {
@@ -148,7 +148,7 @@ export struct Scanner {
   }
 
   /**
-   * 关闭闪光点
+   * 关闭闪光灯
    */
   closeLight() {
     if (this.isLoaded && this.isLightOpen) {
@@ -294,7 +294,7 @@ export struct Scanner {
   }
 
   /**
-   * 释放相机
+   * 释放相机资源
    */
   releaseScan() {
     try {

@@ -1,1 +1,1 @@
-export { MainPage } from './src/main/ets/components/MainPage'
+export { Scanner } from './src/main/ets/components/Scanner'
