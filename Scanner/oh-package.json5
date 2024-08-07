@@ -1,7 +1,7 @@
 {
   "name": "@coner/scanner",
   "version": "1.0.0",
-  "description": "扫一扫组件",
+  "description": "使用customScan自定义扫一扫组件",
   "main": "Index.ets",
   "author": "coner",
   "homepage": "https://github.com/conerjoy",
