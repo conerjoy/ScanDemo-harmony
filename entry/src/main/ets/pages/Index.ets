@@ -1,5 +1,4 @@
-import { Scanner } from '@ohos/Scanner';
-import { ScannerController } from '@ohos/Scanner/src/main/ets/components/Scanner';
+import { Scanner, ScannerController } from '@ohos/Scanner';
 
 @Entry
 @Component

@@ -7,15 +7,14 @@
 - 支持开启关闭闪光灯
 - 支持UI定制
 
-![Alt text](../photo/fa1ee650af639f93c8c1983f2a23bf87.jpeg)
+![截屏](../photo/fa1ee650af639f93c8c1983f2a23bf87.jpeg)
 
 使用示例<br>
 
 - 导入
 
 ```typescript
-import { Scanner } from '@ohos/Scanner';
-import { ScannerController } from '@ohos/Scanner/src/main/ets/components/Scanner';
+import { Scanner, ScannerController } from '@coner/Scanner';
 ```
 
 - 使用

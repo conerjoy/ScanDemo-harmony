@@ -1,1 +1,1 @@
-export { Scanner } from './src/main/ets/components/Scanner'
+export { Scanner, ScannerController } from './src/main/ets/components/Scanner'
