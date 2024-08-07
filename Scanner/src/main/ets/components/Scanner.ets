@@ -47,6 +47,11 @@ export struct Scanner {
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
   areaOffset: number = 100 // 二维码在框中的偏移量
   controller?: ScannerController // 扫码控制类
+  onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
+  onCameraGrant?: () => void // 摄像头权限同意回调
+  onCameraReject?: () => void // 摄像头权限拒绝回调
+  onMediaGrant?: () => void // 读取媒体权限同意回调
+  onMediaReject?: () => void // 读取媒体权限拒绝回调
   // ------------------------------------------------------------------------
   @State scanLineY: number = 0
   private mXComponentController: XComponentController = new XComponentController()
@@ -60,7 +65,6 @@ export struct Scanner {
   @State scanRectRightBoundary: number = 0
   @State scanRectTopBoundary: number = 0
   @State scanRectBottomBoundary: number = 0
-  onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
@@ -101,6 +105,7 @@ export struct Scanner {
   pickPhoto() {
     requestPermissionsFromUser(getContext(this) as common.UIAbilityContext, 'ohos.permission.READ_MEDIA')
       .then(() => {
+        this.onMediaGrant?.()
         let options: scanBarcode.ScanOptions = {
           scanTypes: [scanCore.ScanType.ALL],
           enableMultiMode: true,
@@ -130,6 +135,9 @@ export struct Scanner {
             this.onScanResult?.(ResultState.Fail, error.message);
           })
         })
+      })
+      .catch(() => {
+        this.onMediaReject?.()
       })
   }
 
@@ -270,6 +278,7 @@ export struct Scanner {
   checkPermissionAndInitCamera() {
     requestPermissionsFromUser(getContext(this) as common.UIAbilityContext, 'ohos.permission.CAMERA')
       .then(() => {
+        this.onCameraGrant?.()
         if (canIUse('SystemCapability.Multimedia.Scan.Core')) {
           let options: scanBarcode.ScanOptions = {
             scanTypes: [scanCore.ScanType.ALL],
@@ -289,6 +298,7 @@ export struct Scanner {
           return
         }
       }).catch(() => {
+      this.onCameraReject?.()
       console.warn('初始化相机异常');
     })
   }
