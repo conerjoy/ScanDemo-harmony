@@ -9,6 +9,7 @@ import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit'
 import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
+import { ImageUtil } from '../util/ImageUtil'
 
 @Component
 export struct Scanner {
@@ -106,34 +107,13 @@ export struct Scanner {
     requestPermissionsFromUser(getContext(this) as common.UIAbilityContext, 'ohos.permission.READ_MEDIA')
       .then(() => {
         this.onMediaGrant?.()
-        let options: scanBarcode.ScanOptions = {
-          scanTypes: [scanCore.ScanType.ALL],
-          enableMultiMode: true,
-          enableAlbum: true
-        }
         // 通过picker拉起图库的图片
         let photoOption = new picker.PhotoSelectOptions();
         photoOption.MIMEType = picker.PhotoViewMIMETypes.IMAGE_TYPE;
         photoOption.maxSelectNumber = 1;
         let photoPicker = new picker.PhotoViewPicker();
         photoPicker.select(photoOption).then((result) => {
-          // 定义识码参数inputImage，其中uri为picker选择图片
-          let inputImage: detectBarcode.InputImage = { uri: result.photoUris[0] }
-          // 调用图片识码接口
-          detectBarcode.decode(inputImage, options).then((result: Array<scanBarcode.ScanResult>) => {
-            if (result != undefined) {
-              let scanCodeRect = result[0]?.scanCodeRect;
-              if (scanCodeRect != undefined) {
-                if (result[0]?.originalValue != undefined) {
-                  this.onScanResult?.(ResultState.Success, (result[0]?.originalValue));
-                } else {
-                  this.onScanResult?.(ResultState.Fail, "scan error");
-                }
-              }
-            }
-          }).catch((error: BusinessError) => {
-            this.onScanResult?.(ResultState.Fail, error.message);
-          })
+          this.scanUri(result.photoUris[0])
         })
       })
       .catch(() => {
@@ -236,6 +216,55 @@ export struct Scanner {
     } else {
       this.releaseScan();
     }
+  }
+
+  /**
+   * 扫描网络url
+   * @param url
+   */
+  scanUrl(url: string) {
+    ImageUtil.saveImageByUrl(url, (uri) => {
+      this.scanUri(uri)
+    })
+  }
+
+  /**
+   * 扫描图片PixelMap
+   * @param pixelMap
+   */
+  scanPixelMap(pixelMap: PixelMap) {
+    ImageUtil.saveImageByPixelMap(pixelMap, (uri) => {
+      this.scanUri(uri)
+    })
+  }
+
+  /**
+   * 扫描uri
+   * @param uri
+   * @param options
+   */
+  scanUri(uri: string, options: scanBarcode.ScanOptions = {
+    scanTypes: [scanCore.ScanType.ALL],
+    enableMultiMode: true,
+    enableAlbum: true
+  }) {
+    // 定义识码参数inputImage，其中uri为picker选择图片
+    let inputImage: detectBarcode.InputImage = { uri: uri }
+    // 调用图片识码接口
+    detectBarcode.decode(inputImage, options).then((result: Array<scanBarcode.ScanResult>) => {
+      if (result != undefined) {
+        let scanCodeRect = result[0]?.scanCodeRect;
+        if (scanCodeRect != undefined) {
+          if (result[0]?.originalValue != undefined) {
+            this.onScanResult?.(ResultState.Success, (result[0]?.originalValue));
+          } else {
+            this.onScanResult?.(ResultState.Fail, "scan error");
+          }
+        }
+      }
+    }).catch((error: BusinessError) => {
+      this.onScanResult?.(ResultState.Fail, error.message);
+    })
   }
 
   /**
@@ -644,5 +673,17 @@ export class ScannerController {
 
   rescan() {
     this.scanner?.rescan()
+  }
+
+  scanUri(uri: string) {
+    this.scanner?.scanUri(uri)
+  }
+
+  scanUrl(url: string) {
+    this.scanner?.scanUrl(url)
+  }
+
+  scanPixelMap(pixelMap: PixelMap) {
+    this.scanner?.scanPixelMap(pixelMap)
   }
 }
