@@ -11,6 +11,14 @@
     {
       "name": "EntryAbility_label",
       "value": "label"
+    },
+    {
+      "name": "reasonReadWriteMedia",
+      "value": "识别图库二维码"
+    },
+    {
+      "name": "reasonRequestCamera",
+      "value": "扫一扫识别二维码"
     }
   ]
 }

@@ -47,6 +47,29 @@
           }
         ],
       }
+    ],
+    'requestPermissions': [
+      {
+        "name": "ohos.permission.INTERNET",
+      },{
+        "name": "ohos.permission.READ_MEDIA",
+        "reason": "$string:reasonReadWriteMedia",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "inuse"
+        }
+      }, {
+        "name": "ohos.permission.CAMERA",
+        "reason": "$string:reasonRequestCamera",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "inuse"
+        }
+      }
     ]
   }
 }

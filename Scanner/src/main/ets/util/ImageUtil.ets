@@ -6,14 +6,13 @@ import { http } from '@kit.NetworkKit'
 import { image } from '@kit.ImageKit'
 import { BusinessError } from '@kit.BasicServicesKit'
 import common from '@ohos.app.ability.common';
-import fs from '@ohos.file.fs';
-import { buffer } from '@kit.ArkTS';
-import { fileUri } from '@kit.CoreFileKit';
+import { fileIo, fileUri } from '@kit.CoreFileKit';
 
 
 // 获取应用文件路径
 let context = getContext(this) as common.UIAbilityContext;
 let cacheDir = context.cacheDir;
+const scanImageName = 'scan-step.jpg' // 沙盒内固定名称图片文件
 
 export class ImageUtil {
   static async saveImageByUrl(url: string, callback: (uri: string) => void) {
@@ -27,29 +26,33 @@ export class ImageUtil {
   }
 
   static async createImageFile(pixelMap: PixelMap): Promise<string> {
-    const arr = await getPixelMapInt32ArrayData(pixelMap)
-    // 新建并打开文件
-    let file = fs.openSync(cacheDir + '/test.txt', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-    // 写入一段内容至文件
-    let writeLen = fs.writeSync(file.fd, arr);
-    console.info("The length of str is: " + writeLen);
-    // 从文件读取一段内容
-    let arrayBuffer = new ArrayBuffer(1024);
-
-    class Option {
-      public offset: number = 0;
-      public length: number = 0;
-    }
-
-    let option = new Option();
-    option.length = arrayBuffer.byteLength;
-    let readLen = fs.readSync(file.fd, arrayBuffer, option);
-    let buf = buffer.from(arrayBuffer, 0, readLen);
-    console.info("the content of file: " + buf.toString());
-    // 关闭文件
-    fs.closeSync(file);
+    const imgBuffer = await ImageUtil.transferPixelMap2Buffer(pixelMap)
+    const file = fileIo.openSync(cacheDir + '/' + scanImageName,
+      fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+    await fileIo.write(file.fd, imgBuffer);
+    await fileIo.close(file.fd);
     const uri = fileUri.getUriFromPath(file.path)
     return uri
+  }
+
+  // 将pixelMap转成图片格式
+  static transferPixelMap2Buffer(pixelMap: image.PixelMap): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      /**
+       * 设置打包参数
+       * format：图片打包格式，只支持 jpg 和 webp
+       * quality：JPEG 编码输出图片质量
+       * bufferSize：图片大小，默认 10M
+       */
+      let packOpts: image.PackingOption = { format: 'image/jpeg', quality: 98 };
+      // 创建ImagePacker实例
+      const imagePackerApi = image.createImagePacker();
+      imagePackerApi.packing(pixelMap, packOpts).then((buffer: ArrayBuffer) => {
+        resolve(buffer);
+      }).catch((err: BusinessError) => {
+        reject();
+      })
+    })
   }
 }
 
