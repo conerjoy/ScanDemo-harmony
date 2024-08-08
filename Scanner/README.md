@@ -23,7 +23,19 @@ import { Scanner, ScannerController } from '@coner/Scanner';
 - 使用
 
 ```typescript
-Scanner()
+Scanner({
+  onScanResult: (code: ResultState, value: string) => {
+    if (code == ResultState.Success) {
+      promptAction.showToast({ message: value })
+    }
+  },
+  onCameraReject: () => {
+    promptAction.showToast({ message: '摄像头权限被拒绝' })
+  },
+  onMediaReject: () => {
+    promptAction.showToast({ message: '图库权限被拒绝' })
+  }
+})
 ```
 
 ## 安装使用
@@ -64,6 +76,7 @@ ohpm i @coner/scanner
 | cornerLineWidth  |                   number                   |                  3                  |    角上的框宽度    |
 | cornerLineLength |                   number                   |                 30                  |    角上的框长度    |
 | cornerLineColor  |               ResourceColor                |             Color.White             |    角上的框颜色    |
+|  cornerLineShow  |                  boolean                   |                true                 |   四个角是否显示    |
 |  scanTopMargin   |                   number                   |                 100                 |  扫描框距离上面的间距  |
 |  scanLineWidth   |                   Length                   |                  1                  |    扫描线宽度     |
 |  scanLineLength  |                   Length                   |               '100%'                |    扫描线长度     |
@@ -82,18 +95,81 @@ ohpm i @coner/scanner
 
 ## ScannerController 方法
 
-|       方法       |      入参      |   返回值   |     说明     |
-|:--------------:|:------------:|:-------:|:----------:|
-|   openLight    |     void     |  void   |   打开闪光灯    |
-|   closeLight   |     void     |  void   |   关闭闪光灯    |
-|  toggleLight   |     void     |  void   |   闪光点开关    |
-|   pickPhoto    |     void     |  void   | 选择图片识别二维码  |
-|    setZoom     | zoom: number |  void   | 设置扫码镜头放大比例 |
-|    getZoom     |     void     | number  | 获取扫码镜头放大比例 |
-| getLightStatus |     void     | boolean | 获取闪光灯开启状态  |
-|  releaseScan   |     void     |  void   |   释放相机资源   |
-|   startScan    |     void     |  void   |    启动扫码    |
-|     rescan     |     void     |  void   |   重启相机扫码   |
+|       方法       |         入参         |   返回值   |      说明      |
+|:--------------:|:------------------:|:-------:|:------------:|
+|   openLight    |        void        |  void   |    打开闪光灯     |
+|   closeLight   |        void        |  void   |    关闭闪光灯     |
+|  toggleLight   |        void        |  void   |    闪光点开关     |
+|   pickPhoto    |        void        |  void   |  选择图片识别二维码   |
+|    setZoom     |    zoom: number    |  void   |  设置扫码镜头放大比例  |
+|    getZoom     |        void        | number  |  获取扫码镜头放大比例  |
+| getLightStatus |        void        | boolean |  获取闪光灯开启状态   |
+|  releaseScan   |        void        |  void   |    释放相机资源    |
+|   startScan    |        void        |  void   |     启动扫码     |
+|     rescan     |        void        |  void   |    重启相机扫码    |
+|    scanUri     |    uri: string     |  void   |  扫描图片资源uri   |
+|    scanUrl     |    url: string     |  void   |  扫描网络图片url   |
+|  scanPixelMap  | pixelMap: PixelMap |  void   | 扫描图片PixelMap |
+
+
+## 声明权限
+entry module下的module.json5中新增如下配置
+```typescript
+{
+  "module": {
+    // ...
+    'requestPermissions': [
+      {
+        "name": "ohos.permission.INTERNET",
+      },{
+        "name": "ohos.permission.READ_MEDIA",
+        "reason": "$string:reasonReadWriteMedia",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "inuse"
+        }
+      }, {
+        "name": "ohos.permission.CAMERA",
+        "reason": "$string:reasonRequestCamera",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "inuse"
+        }
+      }
+    ]
+  }
+}
+```
+
+
+## 自定义UI
+
+```typescript
+Scanner({
+  cornerLineShow: false, // 隐藏四个角
+  scanLineShow: false, // 隐藏扫描线
+  albumsShow: false, // 隐藏图库按钮和文字
+  lightShow: false, // 隐藏闪光点按钮和文字
+  tipsShow: false, // 隐藏提示词
+  maskColor: Color.Transparent, // 蒙层透明
+  onScanResult: (code: ResultState, value: string) => {
+    if (code == ResultState.Success) {
+      promptAction.showToast({ message: value })
+    }
+  },
+  onCameraReject: () => {
+    promptAction.showToast({ message: '摄像头权限被拒绝' })
+  },
+  onMediaReject: () => {
+    promptAction.showToast({ message: '图库权限被拒绝' })
+  }
+})
+```
+
 
 ## 交流催更
 

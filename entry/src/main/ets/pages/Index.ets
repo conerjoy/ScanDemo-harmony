@@ -21,12 +21,12 @@ struct Index {
         .height(44)
 
       Scanner({
-        // cornerLineShow: false,
-        // scanLineShow: false,
-        // albumsShow: false,
-        // lightShow: false,
-        // tipsShow: false,
-        // maskColor: Color.Transparent,
+        // cornerLineShow: false, // 隐藏四个角
+        // scanLineShow: false, // 隐藏扫描线
+        // albumsShow: false, // 隐藏图库按钮和文字
+        // lightShow: false, // 隐藏闪光点按钮和文字
+        // tipsShow: false, // 隐藏提示词
+        // maskColor: Color.Transparent, // 蒙层透明
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
