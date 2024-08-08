@@ -38,6 +38,7 @@ export struct Scanner {
   @Prop cornerLineWidth: number = 3 // 角上的框宽度
   @Prop cornerLineLength: number = 30 // 角上的框长度
   @Prop cornerLineColor: ResourceColor = Color.White // 角上的框颜色
+  @Prop cornerLineShow: boolean = true // 四个角是否显示
   @Prop scanTopMargin: number = 100 // 扫描框距离上面的间距
   @Prop scanLineWidth: Length = 1 // 扫描线宽度
   @Prop scanLineLength: Length = '100%' // 扫描线长度
@@ -468,6 +469,7 @@ export struct Scanner {
         top: { anchor: 'topRect', align: VerticalAlign.Bottom },
         left: { anchor: 'leftRect', align: HorizontalAlign.End }
       }).id('scanTopLeftRect')
+        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
 
       ScanTopRightRect({
         cornerLineWidth: this.cornerLineWidth,
@@ -487,6 +489,7 @@ export struct Scanner {
             align: HorizontalAlign.End
           }
         })
+        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
 
       ScanBottomLeftRect({
         cornerLineWidth: this.cornerLineWidth,
@@ -506,6 +509,7 @@ export struct Scanner {
             align: HorizontalAlign.Start
           }
         })
+        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
 
       ScanBottomRightRect({
         cornerLineWidth: this.cornerLineWidth,
@@ -525,6 +529,7 @@ export struct Scanner {
             align: HorizontalAlign.End
           }
         })
+        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
 
 
       Column() {

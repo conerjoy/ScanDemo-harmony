@@ -21,6 +21,12 @@ struct Index {
         .height(44)
 
       Scanner({
+        // cornerLineShow: false,
+        // scanLineShow: false,
+        // albumsShow: false,
+        // lightShow: false,
+        // tipsShow: false,
+        // maskColor: Color.Transparent,
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
