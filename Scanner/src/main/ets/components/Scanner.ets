@@ -577,18 +577,18 @@ export struct Scanner {
       Row()
         .backgroundColor(this.maskColor)
         .width('100%')
-        .height(this.scanTopMargin)
+        .height(this.scanTopMargin + this.cornerLineWidth)
 
       Row() {
         Row()
           .backgroundColor(this.maskColor)
           .width((this.screenWidth - this.scannerSize) / 2)
-          .height(this.scannerSize + this.cornerLineWidth * 2)
+          .height(this.scannerSize)
 
         Row()
           .backgroundColor(this.maskColor)
           .width((this.screenWidth - this.scannerSize) / 2)
-          .height(this.scannerSize + this.cornerLineWidth * 2)
+          .height(this.scannerSize)
       }.justifyContent(FlexAlign.SpaceBetween)
       .width('100%')
 
