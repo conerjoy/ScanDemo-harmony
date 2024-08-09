@@ -114,7 +114,7 @@ ohpm i @coner/scanner
 
 ### 使用方法
 ```typescript
-this.scannerController.scanUrl(url)
+this.scannerController.scanUrl(url) // 扫码结果回调到Scanner组件的onScanResult回调方法
 ```
 
 ## ScanUtil

@@ -2,8 +2,6 @@
 
 ***
 
-<br>
-
 - 利用鸿蒙系统customScan能力
 - 支持选择图库扫码能力
 - 支持开启关闭闪光灯
@@ -21,9 +19,12 @@ import { Scanner, ScannerController } from '@coner/Scanner';
 ```
 
 - 使用
-
+```typescript
+scannerController: ScannerController = new ScannerController()
+```
 ```typescript
 Scanner({
+  controller: this.scannerController,
   onScanResult: (code: ResultState, value: string) => {
     if (code == ResultState.Success) {
       promptAction.showToast({ message: value })
@@ -35,7 +36,7 @@ Scanner({
   onMediaReject: () => {
     promptAction.showToast({ message: '图库权限被拒绝' })
   }
-})
+}).layoutWeight(1)
 ```
 
 ## 安装使用
@@ -111,6 +112,31 @@ ohpm i @coner/scanner
 |    scanUrl     |    url: string     |  void   |  扫描网络图片url   |
 |  scanPixelMap  | pixelMap: PixelMap |  void   | 扫描图片PixelMap |
 
+### 使用方法
+```typescript
+this.scannerController.scanUrl(url) // 扫码结果回调到Scanner组件的onScanResult回调方法
+```
+
+## ScanUtil
+
+- 在非扫码页面（未使用Scanner组件）时调用扫描网络图片、图片uri、图片PixelMap能力
+
+|      方法      |         入参         |       返回值       |      说明      |
+|:------------:|:------------------:|:---------------:|:------------:|
+|   scanUri    |    uri: string     | Promise<string> |  扫描图片资源uri   |
+|   scanUrl    |    url: string     | Promise<string> |  扫描网络图片url   |
+| scanPixelMap | pixelMap: PixelMap | Promise<string> | 扫描图片PixelMap |
+
+### 使用方法
+```typescript
+ScanUtil.scanUrl(url)
+  .then((res) => {
+    promptAction.showToast({ message: res })
+  })
+  .catch((err: string) => {
+    promptAction.showToast({ message: '失败了：' + err })
+  })
+```
 
 ## 声明权限
 entry module下的module.json5中新增如下配置
@@ -119,27 +145,27 @@ entry module下的module.json5中新增如下配置
   "module": {
     // ...
     'requestPermissions': [
-      {
-        "name": "ohos.permission.INTERNET",
-      },{
-        "name": "ohos.permission.READ_MEDIA",
-        "reason": "$string:reasonReadWriteMedia",
-        "usedScene": {
-          "abilities": [
-            "EntryAbility"
-          ],
-          "when": "inuse"
-        }
-      }, {
-        "name": "ohos.permission.CAMERA",
-        "reason": "$string:reasonRequestCamera",
-        "usedScene": {
-          "abilities": [
-            "EntryAbility"
-          ],
-          "when": "inuse"
-        }
+    {
+      "name": "ohos.permission.INTERNET",
+    },{
+      "name": "ohos.permission.READ_MEDIA",
+      "reason": "$string:reasonReadWriteMedia",
+      "usedScene": {
+        "abilities": [
+        "EntryAbility"
+        ],
+        "when": "inuse"
       }
+    }, {
+      "name": "ohos.permission.CAMERA",
+      "reason": "$string:reasonRequestCamera",
+      "usedScene": {
+        "abilities": [
+        "EntryAbility"
+        ],
+        "when": "inuse"
+      }
+    }
     ]
   }
 }
