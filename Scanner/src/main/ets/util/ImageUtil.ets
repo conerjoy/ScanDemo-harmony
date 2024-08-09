@@ -15,14 +15,14 @@ let cacheDir = context.cacheDir;
 const scanImageName = 'scan-step.jpg' // 沙盒内固定名称图片文件
 
 export class ImageUtil {
-  static async saveImageByUrl(url: string, callback: (uri: string) => void) {
+  static async saveImageByUrl(url: string): Promise<string> {
     const pixelMap = await urlToPixelMap(url)
-    ImageUtil.saveImageByPixelMap(pixelMap, callback)
+    return ImageUtil.saveImageByPixelMap(pixelMap)
   }
 
-  static async saveImageByPixelMap(pixelMap: PixelMap, callback: (uri: string) => void) {
+  static async saveImageByPixelMap(pixelMap: PixelMap): Promise<string> {
     const uri = await ImageUtil.createImageFile(pixelMap)
-    callback(uri)
+    return uri
   }
 
   static async createImageFile(pixelMap: PixelMap): Promise<string> {

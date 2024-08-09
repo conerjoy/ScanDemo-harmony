@@ -3,13 +3,13 @@
  * @data 2024/8/5 14:56
  */
 import { ScanBottomLeftRect, ScanBottomRightRect, ScanTopLeftRect, ScanTopRightRect } from './ScanRectView'
-import { customScan, detectBarcode, scanBarcode, scanCore } from '@kit.ScanKit'
+import { customScan, scanBarcode, scanCore } from '@kit.ScanKit'
 import { display } from '@kit.ArkUI'
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit'
 import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
-import { ImageUtil } from '../util/ImageUtil'
+import { ScanUtil } from '../util/ScanUtil'
 
 @Component
 export struct Scanner {
@@ -224,9 +224,8 @@ export struct Scanner {
    * @param url
    */
   scanUrl(url: string) {
-    ImageUtil.saveImageByUrl(url, (uri) => {
-      this.scanUri(uri)
-    })
+    const res = ScanUtil.scanUrl(url)
+    this.scanPromiseHandler(res)
   }
 
   /**
@@ -234,9 +233,8 @@ export struct Scanner {
    * @param pixelMap
    */
   scanPixelMap(pixelMap: PixelMap) {
-    ImageUtil.saveImageByPixelMap(pixelMap, (uri) => {
-      this.scanUri(uri)
-    })
+    const res = ScanUtil.scanPixelMap(pixelMap)
+    this.scanPromiseHandler(res)
   }
 
   /**
@@ -249,22 +247,19 @@ export struct Scanner {
     enableMultiMode: true,
     enableAlbum: true
   }) {
-    // 定义识码参数inputImage，其中uri为picker选择图片
-    let inputImage: detectBarcode.InputImage = { uri: uri }
-    // 调用图片识码接口
-    detectBarcode.decode(inputImage, options).then((result: Array<scanBarcode.ScanResult>) => {
-      if (result != undefined) {
-        let scanCodeRect = result[0]?.scanCodeRect;
-        if (scanCodeRect != undefined) {
-          if (result[0]?.originalValue != undefined) {
-            this.onScanResult?.(ResultState.Success, (result[0]?.originalValue));
-          } else {
-            this.onScanResult?.(ResultState.Fail, "scan error");
-          }
-        }
-      }
-    }).catch((error: BusinessError) => {
-      this.onScanResult?.(ResultState.Fail, error.message);
+    const res = ScanUtil.scanUri(uri, options)
+    this.scanPromiseHandler(res)
+  }
+
+  /**
+   * 处理扫码之后的promise
+   * @param promise
+   */
+  private scanPromiseHandler(promise: Promise<string>) {
+    promise.then((res) => {
+      this.onScanResult?.(ResultState.Success, res);
+    }).catch((err: string) => {
+      this.onScanResult?.(ResultState.Fail, err);
     })
   }
 
