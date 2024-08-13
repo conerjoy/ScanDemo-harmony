@@ -21,9 +21,6 @@ struct Index {
         },
         onCameraReject: () => {
           promptAction.showToast({ message: '摄像头权限被拒绝' })
-        },
-        onMediaReject: () => {
-          promptAction.showToast({ message: '图库权限被拒绝' })
         }
       })
         .layoutWeight(1)
