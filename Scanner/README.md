@@ -32,9 +32,6 @@ Scanner({
   },
   onCameraReject: () => {
     promptAction.showToast({ message: '摄像头权限被拒绝' })
-  },
-  onMediaReject: () => {
-    promptAction.showToast({ message: '图库权限被拒绝' })
   }
 }).layoutWeight(1)
 ```
@@ -91,8 +88,6 @@ ohpm i @coner/scanner
 |   onScanResult   | (code: ResultState, value: string) => void |              undefined              |   扫码结果回调函数   |
 |  onCameraGrant   |                 () => void                 |              undefined              |  摄像头权限同意回调   |
 |  onCameraReject  |                 () => void                 |              undefined              |  摄像头权限拒绝回调   |
-|   onMediaGrant   |                 () => void                 |              undefined              |  读取媒体权限同意回调  |
-|  onMediaReject   |                 () => void                 |              undefined              |  读取媒体权限拒绝回调  |
 
 ## ScannerController 方法
 
@@ -148,15 +143,6 @@ entry module下的module.json5中新增如下配置
       {
         "name": "ohos.permission.INTERNET",
       },{
-        "name": "ohos.permission.READ_MEDIA",
-        "reason": "$string:reasonReadWriteMedia",
-        "usedScene": {
-          "abilities": [
-            "EntryAbility"
-          ],
-          "when": "inuse"
-        }
-      }, {
         "name": "ohos.permission.CAMERA",
         "reason": "$string:reasonRequestCamera",
         "usedScene": {
@@ -189,9 +175,6 @@ Scanner({
   },
   onCameraReject: () => {
     promptAction.showToast({ message: '摄像头权限被拒绝' })
-  },
-  onMediaReject: () => {
-    promptAction.showToast({ message: '图库权限被拒绝' })
   }
 })
 ```
