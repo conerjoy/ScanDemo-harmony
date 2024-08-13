@@ -52,8 +52,6 @@ export struct Scanner {
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
   onCameraGrant?: () => void // 摄像头权限同意回调
   onCameraReject?: () => void // 摄像头权限拒绝回调
-  onMediaGrant?: () => void // 读取媒体权限同意回调
-  onMediaReject?: () => void // 读取媒体权限拒绝回调
   // ------------------------------------------------------------------------
   @State scanLineY: number = 0
   private mXComponentController: XComponentController = new XComponentController()
@@ -105,21 +103,14 @@ export struct Scanner {
    * 选择图片识别二维码
    */
   pickPhoto() {
-    requestPermissionsFromUser(getContext(this) as common.UIAbilityContext, 'ohos.permission.READ_MEDIA')
-      .then(() => {
-        this.onMediaGrant?.()
-        // 通过picker拉起图库的图片
-        let photoOption = new picker.PhotoSelectOptions();
-        photoOption.MIMEType = picker.PhotoViewMIMETypes.IMAGE_TYPE;
-        photoOption.maxSelectNumber = 1;
-        let photoPicker = new picker.PhotoViewPicker();
-        photoPicker.select(photoOption).then((result) => {
-          this.scanUri(result.photoUris[0])
-        })
-      })
-      .catch(() => {
-        this.onMediaReject?.()
-      })
+    // 通过picker拉起图库的图片
+    let photoOption = new picker.PhotoSelectOptions();
+    photoOption.MIMEType = picker.PhotoViewMIMETypes.IMAGE_TYPE;
+    photoOption.maxSelectNumber = 1;
+    let photoPicker = new picker.PhotoViewPicker();
+    photoPicker.select(photoOption).then((result) => {
+      this.scanUri(result.photoUris[0])
+    })
   }
 
   /**
