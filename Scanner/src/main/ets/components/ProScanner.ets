@@ -2,7 +2,6 @@
  * @author 610965
  * @data 2024/8/5 14:56
  */
-import { ScanBottomLeftRect, ScanBottomRightRect, ScanTopLeftRect, ScanTopRightRect } from './ScanRectView'
 import { customScan, scanBarcode, scanCore } from '@kit.ScanKit'
 import { display } from '@kit.ArkUI'
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit'
@@ -12,7 +11,7 @@ import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
 
 @Component
-export struct Scanner {
+export struct ProScanner {
   // ----------------------------------参数----------------------------------
   @Prop albumsShow: boolean = true // 相册是否显示
   @Prop albumsIcon: ResourceStr = $r('app.media.scanner_albums') // 相册图标
@@ -28,32 +27,13 @@ export struct Scanner {
   @Prop lightCloseText: string = '关灯' // 手电筒关闭文案
   @Prop lightTextSize: Length = 16 // 手电筒文字大小
   @Prop lightTextColor: ResourceColor = Color.White // 手电筒文案颜色
-  @Prop tipsShow: boolean = true // 提示词是否显示
-  @Prop tips: string = '将条码、二维码放入框内，即可自动扫描' // 提示词内容
-  @Prop tipsTextColor: ResourceColor = Color.White // 提示词文字颜色
-  @Prop tipsTextSize: Length = 14 // 提示词文字大小
-  @Prop tipsTopMargin: Length = 10 // 提示词距离上面的间距
-  @Prop maskColor: ResourceColor = '#7f000000' // 遮罩颜色
-  @Prop scannerSize: number = 256 // 扫描框宽高
-  @Prop cornerLineWidth: number = 3 // 角上的框宽度
-  @Prop cornerLineLength: number = 30 // 角上的框长度
-  @Prop cornerLineColor: ResourceColor = Color.White // 角上的框颜色
-  @Prop cornerLineShow: boolean = true // 四个角是否显示
-  @Prop scanTopMargin: number = 100 // 扫描框距离上面的间距
-  @Prop scanLineWidth: Length = 1 // 扫描线宽度
-  @Prop scanLineLength: Length = '100%' // 扫描线长度
-  @Prop scanLineColor: ResourceColor = Color.White // 扫描线颜色
-  @Prop scanLineShow: boolean = true // 扫描线是否显示
-  @Prop scanAnimTime: number = 1500 // 动画时间
   @Prop scanIntervalTime: number = 1000 // 扫码间隔时间
-  disableCheckArea: boolean = false // 是否禁止检查二维码在框中
-  areaOffset: number = 100 // 二维码在框中的偏移量
-  controller?: ScannerController // 扫码控制类
+  @BuilderParam pointView: CustomBuilder = this.PointView
+  controller?: ProScannerController // 扫码控制类
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
   onCameraGrant?: () => void // 摄像头权限同意回调
   onCameraReject?: () => void // 摄像头权限拒绝回调
   // ------------------------------------------------------------------------
-  @State scanLineY: number = 0
   private mXComponentController: XComponentController = new XComponentController()
   private surfaceId?: string; //内部实现，不需要初始化
   private viewControl?: customScan.ViewControl ///内部实现，不需要初始化
@@ -61,10 +41,7 @@ export struct Scanner {
   private screenHeight: number = px2vp(display.getDefaultDisplaySync().height)
   @State @Watch("startScan") isLoaded: boolean = false //相机组件是否加载成功
   @State isLightOpen: boolean = false //打开闪光灯
-  @State scanRectLeftBoundary: number = 0
-  @State scanRectRightBoundary: number = 0
-  @State scanRectTopBoundary: number = 0
-  @State scanRectBottomBoundary: number = 0
+  @State points: (scanBarcode.ScanResult | undefined)[] = []
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
@@ -75,24 +52,22 @@ export struct Scanner {
 
     console.log(`扫描成功, result: ${JSON.stringify(result)}`);
     if (result) {
-      let scanCodeRect = result[0]?.scanCodeRect;
-      if (scanCodeRect != undefined && (this.disableCheckArea || this.isInScanRect(px2vp(scanCodeRect.left), px2vp(scanCodeRect.top), px2vp(scanCodeRect.right), px2vp(scanCodeRect.bottom)))) {
-        if (result[0]?.originalValue != undefined) {
-          this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
-        } else {
-          this.onScanResult?.(ResultState.Fail, '扫描错误');
-        }
+      if (result.length <= 1) {
+        this.points = []
+        this.onScanResult?.(ResultState.Success, result[0].originalValue);
+      } else {
+        this.points = result
+        customScan.stop()
       }
+    } else {
+      this.points = []
+      this.onScanResult?.(ResultState.Fail, '未找到二维码');
     }
     this.rescan()
   }
 
   aboutToAppear(): void {
     this.controller?.init(this)
-    this.scanRectLeftBoundary = (this.screenWidth - this.scannerSize) / 2.0 //扫码框左边的边距
-    this.scanRectRightBoundary = this.scanRectLeftBoundary + this.scannerSize //扫码框右边的边距
-    this.scanRectTopBoundary = this.scanTopMargin + this.cornerLineWidth //扫码框顶部的边距
-    this.scanRectBottomBoundary = this.scanRectTopBoundary + this.scannerSize //扫码框底部的边距
   }
 
   aboutToDisappear(): void {
@@ -200,7 +175,6 @@ export struct Scanner {
    * 启动扫码
    */
   startScan() {
-    this.scanLineY = this.scannerSize
     if (this.isLoaded) {
       if (this.viewControl != undefined) {
         this.checkPermissionAndInitCamera()
@@ -255,25 +229,6 @@ export struct Scanner {
   }
 
   /**
-   * 判断二维码是否在扫码框内
-   * @param left
-   * @param top
-   * @param right
-   * @param bottom
-   * @returns
-   */
-  private isInScanRect(left: number, top: number, right: number, bottom: number): boolean {
-    if ((left > this.scanRectLeftBoundary - this.areaOffset)
-      && (top > this.scanRectTopBoundary - this.areaOffset)
-      && (right < this.scanRectRightBoundary + this.areaOffset)
-      && (bottom < this.scanRectBottomBoundary + this.areaOffset)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
    * 重启相机扫码
    */
   rescan() {
@@ -298,7 +253,7 @@ export struct Scanner {
         if (canIUse('SystemCapability.Multimedia.Scan.Core')) {
           let options: scanBarcode.ScanOptions = {
             scanTypes: [scanCore.ScanType.ALL],
-            enableMultiMode: false,
+            enableMultiMode: true,
             enableAlbum: true
           };
           try {
@@ -348,8 +303,7 @@ export struct Scanner {
   build() {
     Stack() {
       this.Camera()
-      this.Mask()
-      this.ScannerLayout()
+      this.MarkPoint()
       this.ButtonLayout()
     }.backgroundColor(Color.Black)
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
@@ -411,178 +365,50 @@ export struct Scanner {
     }.height('100%')
     .width('100%')
     .justifyContent(FlexAlign.End)
-    .gesture(PinchGesture().onActionUpdate((event) => {
-      if (this.isLoaded) {
-        try {
-          customScan.setZoom(customScan.getZoom() * event.scale)
-        } catch (e) {
-          console.warn(e)
-        }
-      }
-    }))
+    .enabled(false)
   }
 
   /**
-   * 扫码布局
+   * 标识码的位置
    */
   @Builder
-  ScannerLayout() {
-    Column() {
-      this.Scanner()
-
-      Text(this.tips)
-        .fontColor(this.tipsTextColor)
-        .fontSize(this.tipsTextSize)
-        .visibility(this.tipsShow ? Visibility.Visible : Visibility.None)
-        .margin({ top: this.tipsTopMargin })
-    }
-    .width('100%')
-    .height('100%')
-  }
-
-  /**
-   * 扫码窗口
-   */
-  @Builder
-  Scanner() {
-    RelativeContainer() {
-
-      ScanTopLeftRect({
-        cornerLineWidth: this.cornerLineWidth,
-        cornerLineLength: this.cornerLineLength,
-        cornerLineColor: this.cornerLineColor
-      }).alignRules({
-        top: { anchor: 'topRect', align: VerticalAlign.Bottom },
-        left: { anchor: 'leftRect', align: HorizontalAlign.End }
-      }).id('scanTopLeftRect')
-        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
-
-      ScanTopRightRect({
-        cornerLineWidth: this.cornerLineWidth,
-        cornerLineLength: this.cornerLineLength,
-        cornerLineColor: this.cornerLineColor
-      }).alignRules({
-        top: { anchor: 'topRect', align: VerticalAlign.Bottom },
-        right: { anchor: 'rightRect', align: HorizontalAlign.Start }
-      }).id('scanTopRightRect')
-        .alignRules({
-          top: {
-            anchor: '__container__',
-            align: VerticalAlign.Top
-          },
-          right: {
-            anchor: '__container__',
-            align: HorizontalAlign.End
-          }
-        })
-        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
-
-      ScanBottomLeftRect({
-        cornerLineWidth: this.cornerLineWidth,
-        cornerLineLength: this.cornerLineLength,
-        cornerLineColor: this.cornerLineColor
-      }).alignRules({
-        bottom: { anchor: 'bottomRect', align: VerticalAlign.Top },
-        left: { anchor: 'leftRect', align: HorizontalAlign.End }
-      }).id('ScanBottomRightRect')
-        .alignRules({
-          bottom: {
-            anchor: '__container__',
-            align: VerticalAlign.Bottom
-          },
-          left: {
-            anchor: '__container__',
-            align: HorizontalAlign.Start
-          }
-        })
-        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
-
-      ScanBottomRightRect({
-        cornerLineWidth: this.cornerLineWidth,
-        cornerLineLength: this.cornerLineLength,
-        cornerLineColor: this.cornerLineColor
-      }).alignRules({
-        bottom: { anchor: 'bottomRect', align: VerticalAlign.Top },
-        right: { anchor: 'rightRect', align: HorizontalAlign.Start }
-      }).id('scanBottomRightRect')
-        .alignRules({
-          bottom: {
-            anchor: '__container__',
-            align: VerticalAlign.Bottom
-          },
-          right: {
-            anchor: '__container__',
-            align: HorizontalAlign.End
-          }
-        })
-        .visibility(this.cornerLineShow ? Visibility.Visible : Visibility.None)
-
-
-      Column() {
-        if (this.scanLineShow) {
-          Line()
-            .width(this.scanLineLength)
-            .height(this.scanLineWidth)
-            .backgroundColor(this.scanLineColor)
-            .alignRules({
-              top: { anchor: 'topRect', align: VerticalAlign.Bottom },
-              middle: { anchor: '__container__', align: HorizontalAlign.Center },
-            })
-            .translate({ y: this.scanLineY })
-            .animation({
-              duration: this.scanAnimTime,
-              iterations: -1, // 设置-1表示动画无限循环
-              curve: Curve.Linear,
-              playMode: PlayMode.Normal,
-            })
-        }
-      }
-      .width(this.scannerSize)
-      .height(this.scannerSize)
-      .visibility(this.scanLineY > 0 ? Visibility.Visible : Visibility.Hidden)
-      .id("contain")
-      .alignRules({
-        center: {
-          anchor: '__container__',
-          align: VerticalAlign.Center
-        },
-        middle: {
-          anchor: '__container__',
-          align: HorizontalAlign.Center
+  MarkPoint() {
+    Stack() {
+      ForEach(this.points, (rect: scanBarcode.ScanResult) => {
+        if (this.pointView && rect.scanCodeRect) {
+          Row() {
+            this.pointView()
+          }.position({
+            left: px2vp(rect.scanCodeRect.left),
+            top: px2vp(rect.scanCodeRect.top),
+            right: px2vp(rect.scanCodeRect.right),
+            bottom: px2vp(rect.scanCodeRect.bottom)
+          }).onClick(() => {
+            this.onScanResult?.(ResultState.Success, rect.originalValue);
+            this.points = []
+            customScan.start(this.viewControl, this.callback);
+          })
         }
       })
-    }
-    .width(this.scannerSize + (this.cornerLineWidth * 2))
-    .height(this.scannerSize + (this.cornerLineWidth * 2))
-    .margin({ top: this.scanTopMargin })
+    }.height('100%')
+    .width('100%')
   }
 
   @Builder
-  Mask() {
-    Column() {
+  PointView() {
+    Row() {
       Row()
-        .backgroundColor(this.maskColor)
         .width('100%')
-        .height(this.scanTopMargin + this.cornerLineWidth)
-
-      Row() {
-        Row()
-          .backgroundColor(this.maskColor)
-          .width((this.screenWidth - this.scannerSize) / 2)
-          .height(this.scannerSize)
-
-        Row()
-          .backgroundColor(this.maskColor)
-          .width((this.screenWidth - this.scannerSize) / 2)
-          .height(this.scannerSize)
-      }.justifyContent(FlexAlign.SpaceBetween)
-      .width('100%')
-
-      Row()
-        .backgroundColor(this.maskColor)
-        .width('100%')
-        .layoutWeight(1)
+        .height('100%')
+        .borderRadius('50%')
+        .backgroundColor('#4AA4F9')
     }
+    .justifyContent(FlexAlign.Center)
+    .width(40)
+    .height(40)
+    .borderRadius(20)
+    .borderWidth(3)
+    .borderColor(Color.White)
   }
 
   /**
@@ -611,6 +437,15 @@ export struct Scanner {
       .width(this.screenWidth)
       .height(this.screenHeight)
       .position({ x: 0, y: 0 })
+      .gesture(PinchGesture().onActionUpdate((event) => {
+        if (this.isLoaded) {
+          try {
+            customScan.setZoom(customScan.getZoom() * event.scale)
+          } catch (e) {
+            console.warn(e)
+          }
+        }
+      }))
   }
 }
 
@@ -619,62 +454,10 @@ export enum ResultState {
   Fail
 }
 
-export class ScannerController {
-  private scanner: Scanner | undefined
+export class ProScannerController {
+  private scanner: ProScanner | undefined
 
-  init(scanner: Scanner) {
+  init(scanner: ProScanner) {
     this.scanner = scanner
-  }
-
-  openLight() {
-    this.scanner?.openLight()
-  }
-
-  closeLight() {
-    this.scanner?.closeLight()
-  }
-
-  toggleLight() {
-    this.scanner?.toggleLight()
-  }
-
-  pickPhoto() {
-    this.scanner?.pickPhoto()
-  }
-
-  setZoom(zoom: number) {
-    this.scanner?.setZoom(zoom)
-  }
-
-  getZoom(): number {
-    return this.scanner?.getZoom() ?? 0
-  }
-
-  getLightStatus(): boolean {
-    return this.scanner?.getLightStatus() ?? false
-  }
-
-  releaseScan() {
-    this.scanner?.releaseScan()
-  }
-
-  startScan() {
-    this.scanner?.startScan()
-  }
-
-  rescan() {
-    this.scanner?.rescan()
-  }
-
-  scanUri(uri: string) {
-    this.scanner?.scanUri(uri)
-  }
-
-  scanUrl(url: string) {
-    this.scanner?.scanUrl(url)
-  }
-
-  scanPixelMap(pixelMap: PixelMap) {
-    this.scanner?.scanPixelMap(pixelMap)
   }
 }

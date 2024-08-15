@@ -1,5 +1,5 @@
 import { Scanner, ScannerController, ScanUtil } from '@ohos/Scanner';
-import { promptAction } from '@kit.ArkUI';
+import { promptAction, router } from '@kit.ArkUI';
 import { ResultState } from '@ohos/Scanner/src/main/ets/components/Scanner';
 
 @Entry
@@ -9,8 +9,33 @@ struct Index {
 
   build() {
     Column() {
-      Text('扫一扫')
-        .height(44)
+      RelativeContainer() {
+        Text('扫一扫')
+          .height(44)
+          .id('title')
+          .alignRules({
+            middle: {
+              anchor: '__container__',
+              align: HorizontalAlign.Center
+            }
+          })
+
+        Text('多码扫描')
+          .alignSelf(ItemAlign.End)
+          .height(44)
+          .id('proScan')
+          .alignRules({
+            right: {
+              anchor: '__container__',
+              align: HorizontalAlign.End
+            }
+          })
+          .onClick(() => {
+            router.pushUrl({ url: 'pages/ProScanPage' })
+          })
+      }.width('100%')
+      .height(44)
+      .padding({ right: 10 })
 
       Scanner({
         controller: this.scannerController,
