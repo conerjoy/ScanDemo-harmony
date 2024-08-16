@@ -81,7 +81,11 @@ export struct ProScanner {
         this.onFindMultipleCode?.(result)
         this.closeLight()
         this.isStop = true
-        customScan.stop()
+        try {
+          customScan.stop()
+        } catch (e) {
+          console.warn(e)
+        }
       }
     } else {
       this.points = []
