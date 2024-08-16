@@ -380,7 +380,7 @@ export struct ProScanner {
     }.height('100%')
     .width('100%')
     .justifyContent(FlexAlign.End)
-    .enabled(false)
+    .hitTestBehavior(HitTestMode.Transparent)
   }
 
   /**
@@ -407,6 +407,7 @@ export struct ProScanner {
       })
     }.height('100%')
     .width('100%')
+    .hitTestBehavior(HitTestMode.Transparent)
   }
 
   @Builder
