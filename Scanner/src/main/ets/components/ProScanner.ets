@@ -39,6 +39,7 @@ export struct ProScanner {
   @Prop pointViewTopOffset: number = -20 // 多码标志点向上的偏移量
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
   controller?: ProScannerController // 扫码控制类
+  onFindMultipleCode?: (result: scanBarcode.ScanResult[]) => void; //发现多码回调函数
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
   onCameraGrant?: () => void // 摄像头权限同意回调
   onCameraReject?: () => void // 摄像头权限拒绝回调
@@ -67,6 +68,7 @@ export struct ProScanner {
         this.rescan()
       } else {
         this.points = result
+        this.onFindMultipleCode?.(result)
         customScan.stop()
       }
     } else {
