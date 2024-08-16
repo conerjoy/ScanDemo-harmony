@@ -52,11 +52,18 @@ export struct ProScanner {
   @State @Watch("startScan") isLoaded: boolean = false //相机组件是否加载成功
   @State isLightOpen: boolean = false //打开闪光灯
   @State points: (scanBarcode.ScanResult | undefined)[] = []
+  @State firstShow: boolean = true // 页面第一次显示
+  @State isRelease: boolean = false // 是否已经回收资源了
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
+    if (this.isRelease) {
+      return
+    }
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
       this.onScanResult?.(ResultState.Fail, error.message);
-      this.rescan()
+      if (!this.isRelease) {
+        this.rescan()
+      }
       return;
     }
 
@@ -65,7 +72,9 @@ export struct ProScanner {
       if (result.length <= 1) {
         this.points = []
         this.onScanResult?.(ResultState.Success, result[0].originalValue);
-        this.rescan()
+        if (!this.isRelease) {
+          this.rescan()
+        }
       } else {
         this.points = result
         this.onFindMultipleCode?.(result)
@@ -74,7 +83,9 @@ export struct ProScanner {
     } else {
       this.points = []
       this.onScanResult?.(ResultState.Fail, '未找到二维码');
-      this.rescan()
+      if (!this.isRelease) {
+        this.rescan()
+      }
     }
   }
 
@@ -246,11 +257,14 @@ export struct ProScanner {
   rescan(time: number = this.scanIntervalTime) {
     try {
       setTimeout(() => {
-        customScan.stop().then(() => {
-          customScan.start(this.viewControl, this.callback);
-        }).catch(() => {
-          customScan.start(this.viewControl, this.callback);
-        })
+        if (!this.isRelease) {
+          customScan.stop().then(() => {
+            customScan.start(this.viewControl, this.callback);
+          }).catch(() => {
+            customScan.start(this.viewControl, this.callback);
+          })
+          this.isRelease = false
+        }
       }, time)
     } catch (e) {
       console.warn(e)
@@ -276,6 +290,7 @@ export struct ProScanner {
             //打开相机
             customScan.start(this.viewControl, this.callback);
             this.points = []
+            this.isRelease = false
           } catch (e) {
             console.warn(e)
           }
@@ -293,6 +308,7 @@ export struct ProScanner {
    * 释放相机资源
    */
   releaseScan() {
+    this.isRelease = true
     try {
       if (canIUse('SystemCapability.Multimedia.Scan.Core')) {
         customScan.stop().then(() => {
@@ -323,7 +339,10 @@ export struct ProScanner {
     }.backgroundColor(Color.Black)
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
       if (isVisible && currentRatio >= 1.0) {
-        this.startScan()
+        if (!this.firstShow) {
+          this.startScan()
+        }
+        this.firstShow = false
       }
       if (!isVisible && currentRatio <= 0) {
         this.releaseScan()
