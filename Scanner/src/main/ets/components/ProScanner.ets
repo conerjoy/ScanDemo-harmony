@@ -27,7 +27,7 @@ export struct ProScanner {
   @Prop lightCloseText: string = '关灯' // 手电筒关闭文案
   @Prop lightTextSize: Length = 16 // 手电筒文字大小
   @Prop lightTextColor: ResourceColor = Color.White // 手电筒文案颜色
-  @Prop scanIntervalTime: number = 1000 // 扫码间隔时间
+  @Prop scanIntervalTime: number = 1000 // 单码扫码间隔时间，多码不受此字段控制
   @BuilderParam pointView: CustomBuilder = this.PointView
   controller?: ProScannerController // 扫码控制类
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
@@ -55,6 +55,7 @@ export struct ProScanner {
       if (result.length <= 1) {
         this.points = []
         this.onScanResult?.(ResultState.Success, result[0].originalValue);
+        this.rescan()
       } else {
         this.points = result
         customScan.stop()
@@ -62,8 +63,8 @@ export struct ProScanner {
     } else {
       this.points = []
       this.onScanResult?.(ResultState.Fail, '未找到二维码');
+      this.rescan()
     }
-    this.rescan()
   }
 
   aboutToAppear(): void {
@@ -231,16 +232,18 @@ export struct ProScanner {
   /**
    * 重启相机扫码
    */
-  rescan() {
-    setTimeout(() => {
-      try {
+  rescan(time: number = this.scanIntervalTime) {
+    try {
+      setTimeout(() => {
         customScan.stop().then(() => {
           customScan.start(this.viewControl, this.callback);
+        }).catch(() => {
+          customScan.start(this.viewControl, this.callback);
         })
-      } catch (e) {
-        console.warn(e)
-      }
-    }, this.scanIntervalTime)
+      }, time)
+    } catch (e) {
+      console.warn(e)
+    }
   }
 
   /**
@@ -261,6 +264,7 @@ export struct ProScanner {
             customScan.init(options)
             //打开相机
             customScan.start(this.viewControl, this.callback);
+            this.points = []
           } catch (e) {
             console.warn(e)
           }
@@ -386,7 +390,7 @@ export struct ProScanner {
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []
-            customScan.start(this.viewControl, this.callback);
+            this.rescan(0)
           })
         }
       })
