@@ -53,6 +53,7 @@ export struct ProScanner {
   @State isLightOpen: boolean = false //打开闪光灯
   @State points: (scanBarcode.ScanResult | undefined)[] = []
   @State firstShow: boolean = true // 页面第一次显示
+  @State isStop: boolean = false // 扫描模块是否已经被停止了
   @State isRelease: boolean = false // 是否已经回收资源了
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (this.isRelease) {
@@ -78,6 +79,8 @@ export struct ProScanner {
       } else {
         this.points = result
         this.onFindMultipleCode?.(result)
+        this.closeLight()
+        this.isStop = true
         customScan.stop()
       }
     } else {
@@ -115,7 +118,7 @@ export struct ProScanner {
    * 打开闪光灯
    */
   openLight() {
-    if (this.isLoaded && !this.isLightOpen) {
+    if (this.isLoaded && !this.isLightOpen && !this.isStop) {
       try {
         customScan.openFlashLight()
       } catch (e) {
@@ -129,7 +132,7 @@ export struct ProScanner {
    * 关闭闪光灯
    */
   closeLight() {
-    if (this.isLoaded && this.isLightOpen) {
+    if (this.isLoaded && this.isLightOpen && !this.isStop) {
       try {
         customScan.closeFlashLight()
       } catch (e) {
@@ -143,7 +146,7 @@ export struct ProScanner {
    * 闪光点开关
    */
   toggleLight() {
-    if (this.isLoaded) {
+    if (this.isLoaded && !this.isStop) {
       try {
         if (this.isLightOpen) {
           customScan.closeFlashLight()
@@ -264,6 +267,7 @@ export struct ProScanner {
             customScan.start(this.viewControl, this.callback);
           })
           this.isRelease = false
+          this.isStop = false
         }
       }, time)
     } catch (e) {
