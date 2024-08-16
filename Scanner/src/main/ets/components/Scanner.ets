@@ -412,15 +412,7 @@ export struct Scanner {
     }.height('100%')
     .width('100%')
     .justifyContent(FlexAlign.End)
-    .gesture(PinchGesture().onActionUpdate((event) => {
-      if (this.isLoaded) {
-        try {
-          customScan.setZoom(customScan.getZoom() * event.scale)
-        } catch (e) {
-          console.warn(e)
-        }
-      }
-    }))
+    .hitTestBehavior(HitTestMode.Transparent)
   }
 
   /**
@@ -439,6 +431,7 @@ export struct Scanner {
     }
     .width('100%')
     .height('100%')
+    .hitTestBehavior(HitTestMode.Transparent)
   }
 
   /**
@@ -584,6 +577,7 @@ export struct Scanner {
         .width('100%')
         .layoutWeight(1)
     }
+    .hitTestBehavior(HitTestMode.Transparent)
   }
 
   /**
@@ -612,6 +606,15 @@ export struct Scanner {
       .width(this.screenWidth)
       .height(this.screenHeight)
       .position({ x: 0, y: 0 })
+      .gesture(PinchGesture().onActionUpdate((event) => {
+        if (this.isLoaded) {
+          try {
+            customScan.setZoom(customScan.getZoom() * event.scale)
+          } catch (e) {
+            console.warn(e)
+          }
+        }
+      }))
   }
 }
 
