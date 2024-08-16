@@ -28,6 +28,14 @@ export struct ProScanner {
   @Prop lightTextSize: Length = 16 // 手电筒文字大小
   @Prop lightTextColor: ResourceColor = Color.White // 手电筒文案颜色
   @Prop scanIntervalTime: number = 1000 // 单码扫码间隔时间，多码不受此字段控制
+  @Prop pointViewSize: number = 40 // 多码标志点大小
+  @Prop pointViewColor: ResourceColor = '#4AA4F9' // 多码标志点颜色
+  @Prop pointViewBorderWidth: number = 3 // 多码标志点边框宽度
+  @Prop pointIcon: ResourceStr = $r('app.media.scanner_arrow_right') // 多码标志点图片
+  @Prop pointIconSize: number = 26 // 多码标志点图片
+  @Prop pointViewBorderColor: ResourceColor = Color.White
+  @Prop pointViewLeftOffset: number = -20
+  @Prop pointViewTopOffset: number = -20
   @BuilderParam pointView: CustomBuilder = this.PointView
   controller?: ProScannerController // 扫码控制类
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
@@ -383,10 +391,10 @@ export struct ProScanner {
           Row() {
             this.pointView()
           }.position({
-            left: px2vp(rect.scanCodeRect.left),
-            top: px2vp(rect.scanCodeRect.top),
-            right: px2vp(rect.scanCodeRect.right),
-            bottom: px2vp(rect.scanCodeRect.bottom)
+            left: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) + this.pointViewLeftOffset,
+            top: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) + this.pointViewTopOffset,
+            right: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) + this.pointViewLeftOffset,
+            bottom: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) + this.pointViewTopOffset
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []
@@ -401,18 +409,24 @@ export struct ProScanner {
   @Builder
   PointView() {
     Row() {
-      Row()
-        .width('100%')
-        .height('100%')
-        .borderRadius('50%')
-        .backgroundColor('#4AA4F9')
+      Row() {
+        Image(this.pointIcon)
+          .width(this.pointIconSize)
+          .height(this.pointIconSize)
+      }
+      .alignItems(VerticalAlign.Center)
+      .justifyContent(FlexAlign.Center)
+      .width('100%')
+      .height('100%')
+      .borderRadius('50%')
+      .backgroundColor(this.pointViewColor)
     }
     .justifyContent(FlexAlign.Center)
-    .width(40)
-    .height(40)
-    .borderRadius(20)
-    .borderWidth(3)
-    .borderColor(Color.White)
+    .width(this.pointViewSize)
+    .height(this.pointViewSize)
+    .borderRadius(this.pointViewSize / 2)
+    .borderWidth(this.pointViewBorderWidth)
+    .borderColor(this.pointViewBorderColor)
   }
 
   /**
