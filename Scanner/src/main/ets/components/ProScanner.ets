@@ -35,8 +35,8 @@ export struct ProScanner {
   @Prop pointIcon: ResourceStr = $r('app.media.scanner_arrow_right') // 多码标志点图片
   @Prop pointIconSize: number = 26 // 多码标志点图片
   @Prop pointViewBorderColor: ResourceColor = Color.White
-  @Prop pointViewLeftOffset: number = -20 // 多码标志点向左的偏移量
-  @Prop pointViewTopOffset: number = -20 // 多码标志点向上的偏移量
+  @Prop pointViewLeftOffset: number = 20 // 多码标志点向左的偏移量
+  @Prop pointViewTopOffset: number = 20 // 多码标志点向上的偏移量
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
   controller?: ProScannerController // 扫码控制类
   onFindMultipleCode?: (result: scanBarcode.ScanResult[]) => void; //发现多码回调函数
@@ -413,10 +413,10 @@ export struct ProScanner {
           Row() {
             this.pointView()
           }.position({
-            left: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) + this.pointViewLeftOffset,
-            top: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) + this.pointViewTopOffset,
-            right: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) + this.pointViewLeftOffset,
-            bottom: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) + this.pointViewTopOffset
+            left: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) - this.pointViewLeftOffset,
+            top: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) - this.pointViewTopOffset,
+            right: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) - this.pointViewLeftOffset,
+            bottom: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) - this.pointViewTopOffset
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []

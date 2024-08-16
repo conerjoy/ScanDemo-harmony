@@ -40,6 +40,11 @@ export struct ProScanPage {
       .padding({ left: 10 })
 
       ProScanner({
+        pointViewSize: 80,
+        pointViewBorderWidth: 6,
+        pointViewBorderColor: Color.Black,
+        pointViewColor: Color.Blue,
+        pointView: this.PointView,
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
@@ -48,5 +53,24 @@ export struct ProScanPage {
       })
         .layoutWeight(1)
     }
+  }
+
+  @Builder
+  PointView() {
+    Row() {
+      Row()
+        .alignItems(VerticalAlign.Center)
+        .justifyContent(FlexAlign.Center)
+        .width('100%')
+        .height('100%')
+        .borderRadius('50%')
+        .backgroundColor(Color.Blue)
+    }
+    .justifyContent(FlexAlign.Center)
+    .width(50)
+    .height(50)
+    .borderRadius(25)
+    .borderWidth(4)
+    .borderColor(Color.Black)
   }
 }
