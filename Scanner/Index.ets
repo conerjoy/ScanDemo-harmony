@@ -4,6 +4,6 @@ export { ImageUtil } from './src/main/ets/util/ImageUtil'
 
 export { ScanUtil } from './src/main/ets/util/ScanUtil'
 
-export { ProScanner } from './src/main/ets/components/ProScanner'
+export { ProScanner, ProScannerController } from './src/main/ets/components/ProScanner'
 
 export { ScannerControllerInterface } from './src/main/ets/util/ScannerControllerInterface'

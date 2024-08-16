@@ -33,8 +33,8 @@ export struct ProScanner {
   @Prop pointViewColor: ResourceColor = '#4AA4F9' // 多码标志点颜色
   @Prop pointViewBorderWidth: number = 3 // 多码标志点边框宽度
   @Prop pointIcon: ResourceStr = $r('app.media.scanner_arrow_right') // 多码标志点图片
-  @Prop pointIconSize: number = 26 // 多码标志点图片
-  @Prop pointViewBorderColor: ResourceColor = Color.White
+  @Prop pointIconSize: number = 26 // 多码标志点图片大小
+  @Prop pointViewBorderColor: ResourceColor = Color.White // 多码标志点边框颜色
   @Prop pointViewLeftOffset: number = 20 // 多码标志点向左的偏移量
   @Prop pointViewTopOffset: number = 20 // 多码标志点向上的偏移量
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI

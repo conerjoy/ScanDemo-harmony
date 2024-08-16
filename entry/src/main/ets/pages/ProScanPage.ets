@@ -2,13 +2,16 @@
  * @author 610965
  * @data 2024/8/15 16:19
  */
-import { ProScanner } from '@ohos/Scanner'
+import { ProScanner, ProScannerController } from '@ohos/Scanner'
 import { promptAction, router } from '@kit.ArkUI'
 import { ResultState } from '@ohos/Scanner/src/main/ets/components/Scanner'
+import { scanBarcode } from '@kit.ScanKit'
 
 @Entry
 @Component
 export struct ProScanPage {
+  @State controller: ProScannerController = new ProScannerController()
+
   build() {
     Column() {
       RelativeContainer() {
