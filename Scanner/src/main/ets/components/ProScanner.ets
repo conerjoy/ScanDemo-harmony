@@ -9,6 +9,7 @@ import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
+import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
 
 @Component
 export struct ProScanner {
@@ -34,9 +35,9 @@ export struct ProScanner {
   @Prop pointIcon: ResourceStr = $r('app.media.scanner_arrow_right') // 多码标志点图片
   @Prop pointIconSize: number = 26 // 多码标志点图片
   @Prop pointViewBorderColor: ResourceColor = Color.White
-  @Prop pointViewLeftOffset: number = -20
-  @Prop pointViewTopOffset: number = -20
-  @BuilderParam pointView: CustomBuilder = this.PointView
+  @Prop pointViewLeftOffset: number = -20 // 多码标志点向左的偏移量
+  @Prop pointViewTopOffset: number = -20 // 多码标志点向上的偏移量
+  @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
   controller?: ProScannerController // 扫码控制类
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
   onCameraGrant?: () => void // 摄像头权限同意回调
@@ -472,10 +473,62 @@ export enum ResultState {
   Fail
 }
 
-export class ProScannerController {
+export class ProScannerController implements ScannerControllerInterface {
   private scanner: ProScanner | undefined
 
   init(scanner: ProScanner) {
     this.scanner = scanner
+  }
+
+  openLight() {
+    this.scanner?.openLight()
+  }
+
+  closeLight() {
+    this.scanner?.closeLight()
+  }
+
+  toggleLight() {
+    this.scanner?.toggleLight()
+  }
+
+  pickPhoto() {
+    this.scanner?.pickPhoto()
+  }
+
+  setZoom(zoom: number) {
+    this.scanner?.setZoom(zoom)
+  }
+
+  getZoom(): number {
+    return this.scanner?.getZoom() ?? 0
+  }
+
+  getLightStatus(): boolean {
+    return this.scanner?.getLightStatus() ?? false
+  }
+
+  releaseScan() {
+    this.scanner?.releaseScan()
+  }
+
+  startScan() {
+    this.scanner?.startScan()
+  }
+
+  rescan() {
+    this.scanner?.rescan()
+  }
+
+  scanUri(uri: string) {
+    this.scanner?.scanUri(uri)
+  }
+
+  scanUrl(url: string) {
+    this.scanner?.scanUrl(url)
+  }
+
+  scanPixelMap(pixelMap: PixelMap) {
+    this.scanner?.scanPixelMap(pixelMap)
   }
 }

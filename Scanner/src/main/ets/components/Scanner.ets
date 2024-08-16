@@ -10,6 +10,7 @@ import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
+import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
 
 @Component
 export struct Scanner {
@@ -619,7 +620,7 @@ export enum ResultState {
   Fail
 }
 
-export class ScannerController {
+export class ScannerController implements ScannerControllerInterface {
   private scanner: Scanner | undefined
 
   init(scanner: Scanner) {
