@@ -1,7 +1,7 @@
 {
   "name": "@coner/scanner",
-  "version": "1.0.4",
-  "description": "使用customScan自定义扫一扫组件",
+  "version": "1.1.0",
+  "description": "自定义扫一扫（支持多码识别）",
   "main": "Index.ets",
   "author": "coner",
   "homepage": "https://github.com/conerjoy/ScanDemo-harmony",
