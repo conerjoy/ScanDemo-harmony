@@ -7,3 +7,5 @@ export { ScanUtil } from './src/main/ets/util/ScanUtil'
 export { ProScanner, ProScannerController } from './src/main/ets/components/ProScanner'
 
 export { ScannerControllerInterface } from './src/main/ets/util/ScannerControllerInterface'
+
+export { ResultState } from './src/main/ets/util/ResultState'

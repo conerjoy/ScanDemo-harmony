@@ -11,6 +11,7 @@ import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
 import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
+import { ResultState } from '../util/ResultState'
 
 @Component
 export struct Scanner {
@@ -635,11 +636,6 @@ export struct Scanner {
         }
       }))
   }
-}
-
-export enum ResultState {
-  Success,
-  Fail
 }
 
 export class ScannerController implements ScannerControllerInterface {

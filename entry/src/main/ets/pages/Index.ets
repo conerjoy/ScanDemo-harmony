@@ -1,6 +1,5 @@
-import { Scanner, ScannerController, ScanUtil } from '@ohos/Scanner';
+import { ResultState, Scanner, ScannerController, ScanUtil } from '@ohos/Scanner';
 import { promptAction, router } from '@kit.ArkUI';
-import { ResultState } from '@ohos/Scanner/src/main/ets/components/Scanner';
 
 @Entry
 @Component

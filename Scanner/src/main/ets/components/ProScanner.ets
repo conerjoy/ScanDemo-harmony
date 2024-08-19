@@ -10,6 +10,7 @@ import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
 import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
+import { ResultState } from '../util/ResultState'
 
 @Component
 export struct ProScanner {
@@ -496,11 +497,6 @@ export struct ProScanner {
         }
       }))
   }
-}
-
-export enum ResultState {
-  Success,
-  Fail
 }
 
 export class ProScannerController implements ScannerControllerInterface {
