@@ -6,6 +6,10 @@ import { promptAction, router } from '@kit.ArkUI';
 struct Index {
   scannerController: ScannerController = new ScannerController()
 
+  onPageShow(): void {
+    this.scannerController.rescan()
+  }
+
   build() {
     Column() {
       RelativeContainer() {
