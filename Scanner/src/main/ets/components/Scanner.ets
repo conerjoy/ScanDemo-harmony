@@ -48,6 +48,8 @@ export struct Scanner {
   @Prop scanLineShow: boolean = true // 扫描线是否显示
   @Prop scanAnimTime: number = 1500 // 动画时间
   @Prop scanIntervalTime: number = 1000 // 扫码间隔时间
+  @Prop onceScan: boolean = false // 是否单次扫描
+  @Prop scanTypes: Array<scanCore.ScanType> = [scanCore.ScanType.ALL] // 扫描类型
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
   areaOffset: number = 100 // 二维码在框中的偏移量
   controller?: ScannerController // 扫码控制类
@@ -69,6 +71,7 @@ export struct Scanner {
   @State scanRectBottomBoundary: number = 0
   @State firstShow: boolean = true // 页面第一次显示
   @State isRelease: boolean = false // 是否已经回收资源了
+  @State isFirstScanSuccess: boolean = false // 是否第一次扫码成功
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (this.isRelease) {
       return
@@ -76,7 +79,7 @@ export struct Scanner {
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
       this.onScanResult?.(ResultState.Fail, error.message);
-      if (!this.isRelease) {
+      if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
         this.rescan()
       }
       return;
@@ -88,12 +91,15 @@ export struct Scanner {
       if (scanCodeRect != undefined && (this.disableCheckArea || this.isInScanRect(px2vp(scanCodeRect.left), px2vp(scanCodeRect.top), px2vp(scanCodeRect.right), px2vp(scanCodeRect.bottom)))) {
         if (result[0]?.originalValue != undefined) {
           this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
+          if (this.onceScan) {
+            this.isFirstScanSuccess = true
+          }
         } else {
           this.onScanResult?.(ResultState.Fail, '扫描错误');
         }
       }
     }
-    if (!this.isRelease) {
+    if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
       this.rescan()
     }
   }
@@ -225,8 +231,12 @@ export struct Scanner {
    * 扫描网络url
    * @param url
    */
-  scanUrl(url: string) {
-    const res = ScanUtil.scanUrl(url)
+  scanUrl(url: string, options: scanBarcode.ScanOptions = {
+    scanTypes: this.scanTypes,
+    enableMultiMode: true,
+    enableAlbum: true
+  }) {
+    const res = ScanUtil.scanUrl(url, options)
     this.scanPromiseHandler(res)
   }
 
@@ -234,8 +244,12 @@ export struct Scanner {
    * 扫描图片PixelMap
    * @param pixelMap
    */
-  scanPixelMap(pixelMap: PixelMap) {
-    const res = ScanUtil.scanPixelMap(pixelMap)
+  scanPixelMap(pixelMap: PixelMap, options: scanBarcode.ScanOptions = {
+    scanTypes: this.scanTypes,
+    enableMultiMode: true,
+    enableAlbum: true
+  }) {
+    const res = ScanUtil.scanPixelMap(pixelMap, options)
     this.scanPromiseHandler(res)
   }
 
@@ -245,7 +259,7 @@ export struct Scanner {
    * @param options
    */
   scanUri(uri: string, options: scanBarcode.ScanOptions = {
-    scanTypes: [scanCore.ScanType.ALL],
+    scanTypes: this.scanTypes,
     enableMultiMode: true,
     enableAlbum: true
   }) {
@@ -313,7 +327,7 @@ export struct Scanner {
         this.onCameraGrant?.()
         if (canIUse('SystemCapability.Multimedia.Scan.Core')) {
           let options: scanBarcode.ScanOptions = {
-            scanTypes: [scanCore.ScanType.ALL],
+            scanTypes: this.scanTypes,
             enableMultiMode: false,
             enableAlbum: true
           };

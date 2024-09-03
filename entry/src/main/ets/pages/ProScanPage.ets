@@ -4,7 +4,7 @@
  */
 import { ProScanner, ProScannerController, ResultState } from '@ohos/Scanner'
 import { promptAction, router } from '@kit.ArkUI'
-import { scanBarcode } from '@kit.ScanKit'
+import { scanBarcode, scanCore } from '@kit.ScanKit'
 
 @Entry
 @Component
@@ -47,6 +47,8 @@ export struct ProScanPage {
         pointViewBorderColor: Color.Black,
         pointViewColor: Color.Blue,
         pointView: this.PointView,
+        scanTypes: [scanCore.ScanType.QR_CODE],
+        onceScan: true,
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })

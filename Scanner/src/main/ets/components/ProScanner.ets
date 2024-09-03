@@ -38,6 +38,8 @@ export struct ProScanner {
   @Prop pointViewBorderColor: ResourceColor = Color.White // 多码标志点边框颜色
   @Prop pointViewLeftOffset: number = 20 // 多码标志点向左的偏移量
   @Prop pointViewTopOffset: number = 20 // 多码标志点向上的偏移量
+  @Prop onceScan: boolean = false // 是否单次扫描
+  @Prop scanTypes: Array<scanCore.ScanType> = [scanCore.ScanType.ALL] // 扫描类型
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
   controller?: ProScannerController // 扫码控制类
   onFindMultipleCode?: (result: scanBarcode.ScanResult[]) => void; //发现多码回调函数
@@ -56,6 +58,7 @@ export struct ProScanner {
   @State firstShow: boolean = true // 页面第一次显示
   @State isStop: boolean = false // 扫描模块是否已经被停止了
   @State isRelease: boolean = false // 是否已经回收资源了
+  @State isFirstScanSuccess: boolean = false // 是否第一次扫码成功
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (this.isRelease) {
       return
@@ -63,7 +66,7 @@ export struct ProScanner {
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
       this.onScanResult?.(ResultState.Fail, error.message);
-      if (!this.isRelease) {
+      if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
         this.rescan()
       }
       return;
@@ -74,7 +77,10 @@ export struct ProScanner {
       if (result.length <= 1) {
         this.points = []
         this.onScanResult?.(ResultState.Success, result[0].originalValue);
-        if (!this.isRelease) {
+        if (this.onceScan) {
+          this.isFirstScanSuccess = true
+        }
+        if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
           this.rescan()
         }
       } else {
@@ -82,6 +88,9 @@ export struct ProScanner {
         this.onFindMultipleCode?.(result)
         this.closeLight()
         this.isStop = true
+        if (this.onceScan) {
+          this.isFirstScanSuccess = true
+        }
         try {
           customScan.stop()
         } catch (e) {
@@ -91,7 +100,7 @@ export struct ProScanner {
     } else {
       this.points = []
       this.onScanResult?.(ResultState.Fail, '未找到二维码');
-      if (!this.isRelease) {
+      if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
         this.rescan()
       }
     }
@@ -219,8 +228,12 @@ export struct ProScanner {
    * 扫描网络url
    * @param url
    */
-  scanUrl(url: string) {
-    const res = ScanUtil.scanUrl(url)
+  scanUrl(url: string, options: scanBarcode.ScanOptions = {
+    scanTypes: this.scanTypes,
+    enableMultiMode: true,
+    enableAlbum: true
+  }) {
+    const res = ScanUtil.scanUrl(url, options)
     this.scanPromiseHandler(res)
   }
 
@@ -228,8 +241,12 @@ export struct ProScanner {
    * 扫描图片PixelMap
    * @param pixelMap
    */
-  scanPixelMap(pixelMap: PixelMap) {
-    const res = ScanUtil.scanPixelMap(pixelMap)
+  scanPixelMap(pixelMap: PixelMap, options: scanBarcode.ScanOptions = {
+    scanTypes: this.scanTypes,
+    enableMultiMode: true,
+    enableAlbum: true
+  }) {
+    const res = ScanUtil.scanPixelMap(pixelMap, options)
     this.scanPromiseHandler(res)
   }
 
@@ -239,7 +256,7 @@ export struct ProScanner {
    * @param options
    */
   scanUri(uri: string, options: scanBarcode.ScanOptions = {
-    scanTypes: [scanCore.ScanType.ALL],
+    scanTypes: this.scanTypes,
     enableMultiMode: true,
     enableAlbum: true
   }) {
@@ -289,7 +306,7 @@ export struct ProScanner {
         this.onCameraGrant?.()
         if (canIUse('SystemCapability.Multimedia.Scan.Core')) {
           let options: scanBarcode.ScanOptions = {
-            scanTypes: [scanCore.ScanType.ALL],
+            scanTypes: this.scanTypes,
             enableMultiMode: true,
             enableAlbum: true
           };
@@ -429,6 +446,9 @@ export struct ProScanner {
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []
+            if (this.onceScan && this.isFirstScanSuccess) {
+              return
+            }
             this.rescan(0)
           })
         }

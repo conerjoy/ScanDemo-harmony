@@ -1,5 +1,6 @@
 import { ResultState, Scanner, ScannerController, ScanUtil } from '@ohos/Scanner';
 import { promptAction, router } from '@kit.ArkUI';
+import { scanCore } from '@kit.ScanKit';
 
 @Entry
 @Component
@@ -41,6 +42,7 @@ struct Index {
       .padding({ right: 10 })
 
       Scanner({
+        scanTypes: [scanCore.ScanType.QR_CODE],
         controller: this.scannerController,
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {

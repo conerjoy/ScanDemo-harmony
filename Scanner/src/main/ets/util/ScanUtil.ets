@@ -11,18 +11,26 @@ export class ScanUtil {
    * 扫描网络url
    * @param url
    */
-  static async scanUrl(url: string): Promise<string> {
+  static async scanUrl(url: string, options: scanBarcode.ScanOptions = {
+    scanTypes: [scanCore.ScanType.ALL],
+    enableMultiMode: true,
+    enableAlbum: true
+  }): Promise<string> {
     const uri = await ImageUtil.saveImageByUrl(url)
-    return ScanUtil.scanUri(uri)
+    return ScanUtil.scanUri(uri, options)
   }
 
   /**
    * 扫描图片PixelMap
    * @param pixelMap
    */
-  static async scanPixelMap(pixelMap: PixelMap): Promise<string> {
+  static async scanPixelMap(pixelMap: PixelMap, options: scanBarcode.ScanOptions = {
+    scanTypes: [scanCore.ScanType.ALL],
+    enableMultiMode: true,
+    enableAlbum: true
+  }): Promise<string> {
     const uri = await ImageUtil.saveImageByPixelMap(pixelMap)
-    return ScanUtil.scanUri(uri)
+    return ScanUtil.scanUri(uri, options)
   }
 
   /**
