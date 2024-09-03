@@ -79,7 +79,7 @@ export struct Scanner {
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
       this.onScanResult?.(ResultState.Fail, error.message);
-      if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
+      if (!this.isRelease) {
         this.rescan()
       }
       return;
@@ -90,16 +90,20 @@ export struct Scanner {
       let scanCodeRect = result[0]?.scanCodeRect;
       if (scanCodeRect != undefined && (this.disableCheckArea || this.isInScanRect(px2vp(scanCodeRect.left), px2vp(scanCodeRect.top), px2vp(scanCodeRect.right), px2vp(scanCodeRect.bottom)))) {
         if (result[0]?.originalValue != undefined) {
-          this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
           if (this.onceScan) {
+            if (!this.isFirstScanSuccess) {
+              this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
+            }
             this.isFirstScanSuccess = true
+          } else {
+            this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
           }
         } else {
           this.onScanResult?.(ResultState.Fail, '扫描错误');
         }
       }
     }
-    if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
+    if (!this.isRelease) {
       this.rescan()
     }
   }

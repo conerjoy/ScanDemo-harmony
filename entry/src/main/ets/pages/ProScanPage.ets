@@ -48,7 +48,7 @@ export struct ProScanPage {
         pointViewColor: Color.Blue,
         pointView: this.PointView,
         scanTypes: [scanCore.ScanType.QR_CODE],
-        onceScan: true,
+        // onceScan: true,
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })

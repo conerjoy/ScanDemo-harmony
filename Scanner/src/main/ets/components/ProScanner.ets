@@ -66,7 +66,7 @@ export struct ProScanner {
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
       this.onScanResult?.(ResultState.Fail, error.message);
-      if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
+      if (!this.isRelease) {
         this.rescan()
       }
       return;
@@ -75,32 +75,49 @@ export struct ProScanner {
     console.log(`扫描成功, result: ${JSON.stringify(result)}`);
     if (result) {
       if (result.length <= 1) {
-        this.points = []
-        this.onScanResult?.(ResultState.Success, result[0].originalValue);
         if (this.onceScan) {
+          if (!this.isFirstScanSuccess) {
+            this.points = []
+            this.onScanResult?.(ResultState.Success, result[0].originalValue);
+          }
           this.isFirstScanSuccess = true
+        } else {
+          this.points = []
+          this.onScanResult?.(ResultState.Success, result[0].originalValue);
         }
-        if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
+        if (!this.isRelease) {
           this.rescan()
         }
       } else {
-        this.points = result
-        this.onFindMultipleCode?.(result)
-        this.closeLight()
-        this.isStop = true
         if (this.onceScan) {
+          if (!this.isFirstScanSuccess) {
+            this.points = result
+            this.onFindMultipleCode?.(result)
+            this.closeLight()
+            this.isStop = true
+            try {
+              customScan.stop()
+            } catch (e) {
+              console.warn(e)
+            }
+          }
           this.isFirstScanSuccess = true
-        }
-        try {
-          customScan.stop()
-        } catch (e) {
-          console.warn(e)
+        } else {
+          this.points = result
+          this.onFindMultipleCode?.(result)
+          this.closeLight()
+          this.isStop = true
+          try {
+            customScan.stop()
+          } catch (e) {
+            console.warn(e)
+          }
         }
       }
     } else {
       this.points = []
       this.onScanResult?.(ResultState.Fail, '未找到二维码');
-      if (!this.isRelease && !(this.onceScan && this.isFirstScanSuccess)) {
+      if (!this.isRelease) {
         this.rescan()
       }
     }
@@ -446,9 +463,6 @@ export struct ProScanner {
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []
-            if (this.onceScan && this.isFirstScanSuccess) {
-              return
-            }
             this.rescan(0)
           })
         }
