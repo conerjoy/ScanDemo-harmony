@@ -73,7 +73,9 @@ struct Index {
    * @param url
    */
   scanUri2(uri: string) {
-    ScanUtil.scanUri(uri)
+    ScanUtil.scanUri(uri, {
+      scanTypes: [scanCore.ScanType.ALL]
+    })
       .then((res) => {
         promptAction.showToast({ message: res })
       })
