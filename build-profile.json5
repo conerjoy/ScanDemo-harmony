@@ -5,13 +5,13 @@
         "name": "default",
         "type": "HarmonyOS",
         "material": {
-          "certpath": "C:\\Users\\610965\\.ohos\\config\\default_ScanDem_puAMdqCE6VauiD0hZDMCJNfz-gYgRCfFEZNMKZVrrbA=.cer",
-          "storePassword": "0000001BD403164BCE4DB135DBD3D86D32990B268FC3CD56903EDFB5F972E6A42E57D8373EC7AD82D61593",
+          "certpath": "/Users/coner/.ohos/config/default_ScanDemo-harmony_wslg0rKyjjmtm_QDtcPqr_rFiUAH2sQtZUydzCDSX-E=.cer",
+          "storePassword": "0000001B4670907C55EA3E2288BB77A11D223AE6AEEC1DF6F1153207197A788BC4D43C638A01783255327E",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B4F4DBC066B1C8169CF2CA241D5E6DF75F674E34AACF6D105295875D2A3B68306BF0A59F429FD63",
-          "profile": "C:\\Users\\610965\\.ohos\\config\\default_ScanDem_puAMdqCE6VauiD0hZDMCJNfz-gYgRCfFEZNMKZVrrbA=.p7b",
+          "keyPassword": "0000001B739F096EC0B134FAA3C76A8193A6CA62EF38EFEDAF5A26BE8B904B5CD39A8945EC308694E252A5",
+          "profile": "/Users/coner/.ohos/config/default_ScanDemo-harmony_wslg0rKyjjmtm_QDtcPqr_rFiUAH2sQtZUydzCDSX-E=.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "C:\\Users\\610965\\.ohos\\config\\default_ScanDem_puAMdqCE6VauiD0hZDMCJNfz-gYgRCfFEZNMKZVrrbA=.p12"
+          "storeFile": "/Users/coner/.ohos/config/default_ScanDemo-harmony_wslg0rKyjjmtm_QDtcPqr_rFiUAH2sQtZUydzCDSX-E=.p12"
         }
       }
     ],
