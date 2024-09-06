@@ -616,6 +616,9 @@ export struct Scanner {
         .layoutWeight(1)
     }
     .hitTestBehavior(HitTestMode.Transparent)
+    .width(this.screenWidth)
+    .height(this.screenHeight)
+    .position({ x: 0, y: 0 })
   }
 
   /**
