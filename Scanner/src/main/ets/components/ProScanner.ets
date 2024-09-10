@@ -510,8 +510,8 @@ export struct ProScanner {
         this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
         // 设置ViewControl相应字段
         this.viewControl = {
-          width: display.getDefaultDisplaySync().width,
-          height: display.getDefaultDisplaySync().height,
+          width: this.screenWidth,
+          height: this.screenHeight,
           surfaceId: this.surfaceId
         }
         this.isLoaded = true

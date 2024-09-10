@@ -5,13 +5,26 @@
         "name": "default",
         "type": "HarmonyOS",
         "material": {
-          "certpath": "/Users/coner/.ohos/config/default_ScanDemo-harmony_wslg0rKyjjmtm_QDtcPqr_rFiUAH2sQtZUydzCDSX-E=.cer",
-          "storePassword": "0000001B4670907C55EA3E2288BB77A11D223AE6AEEC1DF6F1153207197A788BC4D43C638A01783255327E",
+          "certpath": "C:\\Users\\610965\\.ohos\\config\\default_ScanDem_puAMdqCE6VauiD0hZDMCJNfz-gYgRCfFEZNMKZVrrbA=.cer",
+          "storePassword": "0000001BC571BC880B78B1716E7B1359AE1D85890D4A89499C4C2699599AE4EBF0F731A77F8A228CDDDA38",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B739F096EC0B134FAA3C76A8193A6CA62EF38EFEDAF5A26BE8B904B5CD39A8945EC308694E252A5",
-          "profile": "/Users/coner/.ohos/config/default_ScanDemo-harmony_wslg0rKyjjmtm_QDtcPqr_rFiUAH2sQtZUydzCDSX-E=.p7b",
+          "keyPassword": "0000001B1CE0D6CD8C8CC20EA3F8C1DCFC2E42A4A8B71B0355CEAEAA455FB654B254F2926BB2727C50B67C",
+          "profile": "C:\\Users\\610965\\.ohos\\config\\default_ScanDem_puAMdqCE6VauiD0hZDMCJNfz-gYgRCfFEZNMKZVrrbA=.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "/Users/coner/.ohos/config/default_ScanDemo-harmony_wslg0rKyjjmtm_QDtcPqr_rFiUAH2sQtZUydzCDSX-E=.p12"
+          "storeFile": "C:\\Users\\610965\\.ohos\\config\\default_ScanDem_puAMdqCE6VauiD0hZDMCJNfz-gYgRCfFEZNMKZVrrbA=.p12"
+        }
+      },
+      {
+        "name": "release",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:/Users/610965/Coner发布证书.cer",
+          "storePassword": "0000001801A5FD26EF6DB516FFC054510B89AE2BDDFA589F59F395470A6C5A002B086764A11B4BD0",
+          "keyAlias": "ConerKey",
+          "keyPassword": "0000001894085FBAF7BE4E9F5B5AB981343D9656CD2AD0217A1FF1333CEF671F75822383E7AE3CA7",
+          "profile": "C:/Users/610965/Coner发布证书Release.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/610965/ConerKey.p12"
         }
       }
     ],
@@ -19,6 +32,12 @@
       {
         "name": "default",
         "signingConfig": "default",
+        "compatibleSdkVersion": "4.1.0(11)",
+        "runtimeOS": "HarmonyOS",
+      },
+      {
+        "name": "release",
+        "signingConfig": "release",
         "compatibleSdkVersion": "4.1.0(11)",
         "runtimeOS": "HarmonyOS",
       }
@@ -40,7 +59,8 @@
         {
           "name": "default",
           "applyToProducts": [
-            "default"
+            "default",
+            "release"
           ]
         }
       ]
