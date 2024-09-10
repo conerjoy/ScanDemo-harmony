@@ -456,10 +456,10 @@ export struct ProScanner {
           Row() {
             this.pointView()
           }.position({
-            left: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) - this.pointViewLeftOffset,
-            top: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) - this.pointViewTopOffset,
-            right: px2vp(rect.scanCodeRect.left) + px2vp((rect.scanCodeRect.right - rect.scanCodeRect.left) / 2) - this.pointViewLeftOffset,
-            bottom: px2vp(rect.scanCodeRect.top) + px2vp((rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2) - this.pointViewTopOffset
+            left: rect.scanCodeRect.left + (rect.scanCodeRect.right - rect.scanCodeRect.left) / 2 - this.pointViewLeftOffset,
+            top: rect.scanCodeRect.top + (rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2 - this.pointViewTopOffset,
+            right: rect.scanCodeRect.left + (rect.scanCodeRect.right - rect.scanCodeRect.left) / 2 - this.pointViewLeftOffset,
+            bottom: rect.scanCodeRect.top + (rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2 - this.pointViewTopOffset
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []
