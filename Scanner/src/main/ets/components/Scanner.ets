@@ -61,8 +61,8 @@ export struct Scanner {
   private mXComponentController: XComponentController = new XComponentController()
   private surfaceId?: string; //内部实现，不需要初始化
   private viewControl?: customScan.ViewControl ///内部实现，不需要初始化
-  private screenWidth: number = px2vp(display.getDefaultDisplaySync().width)
-  private screenHeight: number = px2vp(display.getDefaultDisplaySync().height)
+  @State screenWidth: number = 360
+  @State screenHeight: number = 640
   @State @Watch("startScan") isLoaded: boolean = false //相机组件是否加载成功
   @State isLightOpen: boolean = false //打开闪光灯
   @State scanRectLeftBoundary: number = 0
@@ -388,6 +388,10 @@ export struct Scanner {
       this.ScannerLayout()
       this.ButtonLayout()
     }.backgroundColor(Color.Black)
+    .onSizeChange((_, value) => {
+      this.screenWidth = value.width as number
+      this.screenHeight = value.height as number
+    })
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
       if (isVisible && currentRatio >= 1.0) {
         if (!this.firstShow) {
@@ -601,12 +605,12 @@ export struct Scanner {
         Row()
           .backgroundColor(this.maskColor)
           .width((this.screenWidth - this.scannerSize) / 2)
-          .height(this.scannerSize)
+          .height(Math.min(this.scannerSize, this.screenHeight - (this.scanTopMargin + this.cornerLineWidth)))
 
         Row()
           .backgroundColor(this.maskColor)
           .width((this.screenWidth - this.scannerSize) / 2)
-          .height(this.scannerSize)
+          .height(Math.min(this.scannerSize, this.screenHeight - (this.scanTopMargin + this.cornerLineWidth)))
       }.justifyContent(FlexAlign.SpaceBetween)
       .width('100%')
 
@@ -628,12 +632,16 @@ export struct Scanner {
   Camera() {
     XComponent({
       id: 'componentId',
-      type: 'surface',
+      type: XComponentType.SURFACE,
       controller: this.mXComponentController
     })
       .onLoad(() => {
         // 获取XComponent的surfaceId
         this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
+        this.mXComponentController.setXComponentSurfaceRect({
+          surfaceWidth: display.getDefaultDisplaySync().width,
+          surfaceHeight: display.getDefaultDisplaySync().height
+        })
         // 设置ViewControl相应字段
         this.viewControl = {
           width: this.screenWidth,
