@@ -40,6 +40,8 @@ export struct ProScanner {
   @Prop pointViewTopOffset: number = 20 // 多码标志点向上的偏移量
   @Prop onceScan: boolean = false // 是否单次扫描
   @Prop scanTypes: Array<scanCore.ScanType> = [scanCore.ScanType.ALL] // 扫描类型
+  @Prop safeAreaType?: Array<SafeAreaType> = [SafeAreaType.SYSTEM]
+  @Prop safeAreaEdge?: Array<SafeAreaEdge> = [SafeAreaEdge.BOTTOM]
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
   controller?: ProScannerController // 扫码控制类
   onFindMultipleCode?: (result: scanBarcode.ScanResult[]) => void; //发现多码回调函数
@@ -387,7 +389,8 @@ export struct ProScanner {
       this.screenHeight = value.height as number
     })
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
-      if (isVisible && currentRatio >= 1.0) {
+      if (isVisible && (currentRatio >= 1.0 || (currentRatio > 0.9 && this.safeAreaType &&
+        this.safeAreaType?.length > 0 && this.safeAreaEdge && this.safeAreaEdge.length > 0))) {
         if (!this.firstShow) {
           this.startScan()
         }
@@ -397,6 +400,7 @@ export struct ProScanner {
         this.releaseScan()
       }
     })
+    .expandSafeArea(this.safeAreaType, this.safeAreaEdge)
   }
 
   /**

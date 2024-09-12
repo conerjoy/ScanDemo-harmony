@@ -50,6 +50,8 @@ struct Index {
         // cornerLineShow: false,
         // scanLineShow: false,
         // tipsShow: false,
+        // safeAreaType: [SafeAreaType.SYSTEM],
+        // safeAreaEdge: [SafeAreaEdge.TOP],
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
@@ -59,6 +61,7 @@ struct Index {
           promptAction.showToast({ message: '摄像头权限被拒绝' })
         }
       })
+        // .width(200)
         // .height(200)
         .layoutWeight(1)
     }.width('100%')

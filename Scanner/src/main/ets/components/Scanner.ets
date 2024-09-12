@@ -50,6 +50,8 @@ export struct Scanner {
   @Prop scanIntervalTime: number = 1000 // 扫码间隔时间
   @Prop onceScan: boolean = false // 是否单次扫描
   @Prop scanTypes: Array<scanCore.ScanType> = [scanCore.ScanType.ALL] // 扫描类型
+  @Prop safeAreaType?: Array<SafeAreaType> = [SafeAreaType.SYSTEM]
+  @Prop safeAreaEdge?: Array<SafeAreaEdge> = [SafeAreaEdge.BOTTOM]
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
   areaOffset: number = 100 // 二维码在框中的偏移量
   controller?: ScannerController // 扫码控制类
@@ -393,7 +395,8 @@ export struct Scanner {
       this.screenHeight = value.height as number
     })
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
-      if (isVisible && currentRatio >= 1.0) {
+      if (isVisible && (currentRatio >= 1.0 || (currentRatio > 0.9 && this.safeAreaType &&
+        this.safeAreaType?.length > 0 && this.safeAreaEdge && this.safeAreaEdge.length > 0))) {
         if (!this.firstShow) {
           this.startScan()
         }
@@ -403,6 +406,7 @@ export struct Scanner {
         this.releaseScan()
       }
     })
+    .expandSafeArea(this.safeAreaType, this.safeAreaEdge)
   }
 
   /**

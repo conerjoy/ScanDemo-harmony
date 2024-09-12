@@ -14,6 +14,7 @@
 使用示例<br>
 
 ### 单码识别
+
 - 导入
 
 ```typescript
@@ -25,6 +26,7 @@ import { Scanner, ScannerController } from '@coner/Scanner';
 ```typescript
 scannerController: ScannerController = new ScannerController()
 ```
+
 ```typescript
 Scanner({
   controller: this.scannerController,
@@ -40,6 +42,7 @@ Scanner({
 ```
 
 ### 多码识别
+
 - 导入
 
 ```typescript
@@ -51,6 +54,7 @@ import { ProScanner, ProScannerController } from '@ohos/Scanner'
 ```typescript
 controller: ProScannerController = new ProScannerController()
 ```
+
 ```typescript
 ProScanner({
   controller: this.controller,
@@ -116,6 +120,8 @@ ohpm i @coner/scanner
 |    areaOffset    |                   number                   |                 100                 |     二维码在框中的偏移量      |
 |     onceScan     |                  boolean                   |                true                 | 是否单次扫描（单次扫描后应该关闭页面） |
 |    scanTypes     |          Array<scanCore.ScanType>          |       [scanCore.ScanType.ALL]       |        扫描类型         |
+|   safeAreaType   |            Array<SafeAreaType>             |        [SafeAreaType.SYSTEM]        |     配置扩展安全区域的类型     |
+|   safeAreaEdge   |            Array<SafeAreaEdge>             |        [SafeAreaEdge.BOTTOM]        |     配置扩展安全区域的方向     |
 |    controller    |             ScannerController              |       this.scannerController        |        扫码控制类        |
 |   onScanResult   | (code: ResultState, value: string) => void |              undefined              |      扫码结果回调函数       |
 |  onCameraGrant   |                 () => void                 |              undefined              |      摄像头权限同意回调      |
@@ -179,6 +185,8 @@ this.scannerController.scanUrl(url) // 扫码结果回调到Scanner组件的onSc
 |      pointView       |               CustomBuilder                |               组件默认样式                |     多码标志点自定义UI      |
 |       onceScan       |                  boolean                   |                true                 | 是否单次扫描（单次扫描后应该关闭页面） |
 |      scanTypes       |          Array<scanCore.ScanType>          |       [scanCore.ScanType.ALL]       |        扫描类型         |
+|     safeAreaType     |            Array<SafeAreaType>             |        [SafeAreaType.SYSTEM]        |     配置扩展安全区域的类型     |
+|     safeAreaEdge     |            Array<SafeAreaEdge>             |        [SafeAreaEdge.BOTTOM]        |     配置扩展安全区域的方向     |
 |      controller      |            ProScannerController            |       this.scannerController        |        扫码控制类        |
 |  onFindMultipleCode  | (result: scanBarcode.ScanResult[]) => void |              undefined              |      发现多码回调函数       |
 |     onScanResult     | (code: ResultState, value: string) => void |              undefined              |      扫码结果回调函数       |
@@ -281,11 +289,13 @@ ProScanner({
 ```
 
 对默认样式不满意可以直接重写标志点UI
+
 ```typescript
 ProScanner({
   pointView: this.PointView()
 })
 ```
+
 ```typescript
 @Builder
 PointView() {
