@@ -38,8 +38,8 @@ export struct ProScanPage {
             }
           })
       }.width('100%')
-      .height(44)
-      .padding({ left: 10 })
+      .height(80)
+      .padding({ left: 10, top: 36 })
 
       ProScanner({
         pointViewSize: 80,
@@ -55,6 +55,7 @@ export struct ProScanPage {
           }
         }
       })
+        // .height(300)
         .layoutWeight(1)
     }.width('100%')
     .height('100%')

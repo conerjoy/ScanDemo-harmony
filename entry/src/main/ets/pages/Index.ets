@@ -38,12 +38,18 @@ struct Index {
             router.pushUrl({ url: 'pages/ProScanPage' })
           })
       }.width('100%')
-      .height(44)
-      .padding({ right: 10 })
+      .height(80)
+      .padding({ right: 10, top: 36 })
 
       Scanner({
         scanTypes: [scanCore.ScanType.QR_CODE],
         controller: this.scannerController,
+        // lightShow: false,
+        // albumsShow: false,
+        // maskColor: Color.Transparent,
+        // cornerLineShow: false,
+        // scanLineShow: false,
+        // tipsShow: false,
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
@@ -53,6 +59,7 @@ struct Index {
           promptAction.showToast({ message: '摄像头权限被拒绝' })
         }
       })
+        // .height(200)
         .layoutWeight(1)
     }.width('100%')
     .height('100%')

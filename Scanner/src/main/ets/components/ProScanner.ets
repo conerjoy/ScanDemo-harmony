@@ -50,8 +50,10 @@ export struct ProScanner {
   private mXComponentController: XComponentController = new XComponentController()
   private surfaceId?: string; //内部实现，不需要初始化
   private viewControl?: customScan.ViewControl ///内部实现，不需要初始化
-  private screenWidth: number = px2vp(display.getDefaultDisplaySync().width)
-  private screenHeight: number = px2vp(display.getDefaultDisplaySync().height)
+  private defaultWidth: number = 360
+  private defaultHeight: number = 640
+  @State screenWidth: number = this.defaultWidth
+  @State screenHeight: number = this.defaultHeight
   @State @Watch("startScan") isLoaded: boolean = false //相机组件是否加载成功
   @State isLightOpen: boolean = false //打开闪光灯
   @State points: (scanBarcode.ScanResult | undefined)[] = []
@@ -380,6 +382,10 @@ export struct ProScanner {
       this.MarkPoint()
       this.ButtonLayout()
     }.backgroundColor(Color.Black)
+    .onSizeChange((_, value) => {
+      this.screenWidth = value.width as number
+      this.screenHeight = value.height as number
+    })
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
       if (isVisible && currentRatio >= 1.0) {
         if (!this.firstShow) {
@@ -456,10 +462,10 @@ export struct ProScanner {
           Row() {
             this.pointView()
           }.position({
-            left: rect.scanCodeRect.left + (rect.scanCodeRect.right - rect.scanCodeRect.left) / 2 - this.pointViewLeftOffset,
-            top: rect.scanCodeRect.top + (rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2 - this.pointViewTopOffset,
-            right: rect.scanCodeRect.left + (rect.scanCodeRect.right - rect.scanCodeRect.left) / 2 - this.pointViewLeftOffset,
-            bottom: rect.scanCodeRect.top + (rect.scanCodeRect.bottom - rect.scanCodeRect.top) / 2 - this.pointViewTopOffset
+            left: this.switchLeft(rect) + (this.switchRight(rect) - this.switchLeft(rect)) / 2 - this.pointViewLeftOffset,
+            top: this.switchTop(rect) + (this.switchBottom(rect) - this.switchTop(rect)) / 2 - this.pointViewTopOffset,
+            right: this.switchLeft(rect) + (this.switchRight(rect) - this.switchLeft(rect)) / 2 - this.pointViewLeftOffset,
+            bottom: this.switchTop(rect) + (this.switchBottom(rect) - this.switchTop(rect)) / 2 - this.pointViewTopOffset
           }).onClick(() => {
             this.onScanResult?.(ResultState.Success, rect.originalValue);
             this.points = []
@@ -470,6 +476,38 @@ export struct ProScanner {
     }.height('100%')
     .width('100%')
     .hitTestBehavior(HitTestMode.Transparent)
+  }
+
+  private switchLeft(rect: scanBarcode.ScanResult): number {
+    if (rect.scanCodeRect) {
+      return (rect.scanCodeRect.left / this.defaultWidth) * this.screenWidth
+    } else {
+      return 0
+    }
+  }
+
+  private switchRight(rect: scanBarcode.ScanResult): number {
+    if (rect.scanCodeRect) {
+      return (rect.scanCodeRect.right / this.defaultWidth) * this.screenWidth
+    } else {
+      return 0
+    }
+  }
+
+  private switchTop(rect: scanBarcode.ScanResult): number {
+    if (rect.scanCodeRect) {
+      return (rect.scanCodeRect.top / this.defaultHeight) * this.screenHeight
+    } else {
+      return 0
+    }
+  }
+
+  private switchBottom(rect: scanBarcode.ScanResult): number {
+    if (rect.scanCodeRect) {
+      return (rect.scanCodeRect.bottom / this.defaultHeight) * this.screenHeight
+    } else {
+      return 0
+    }
   }
 
   @Builder
@@ -502,12 +540,16 @@ export struct ProScanner {
   Camera() {
     XComponent({
       id: 'componentId',
-      type: 'surface',
+      type: XComponentType.SURFACE,
       controller: this.mXComponentController
     })
       .onLoad(() => {
         // 获取XComponent的surfaceId
         this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
+        // this.mXComponentController.setXComponentSurfaceRect({
+        //   surfaceWidth: display.getDefaultDisplaySync().width,
+        //   surfaceHeight: display.getDefaultDisplaySync().height
+        // })
         // 设置ViewControl相应字段
         this.viewControl = {
           width: this.screenWidth,
