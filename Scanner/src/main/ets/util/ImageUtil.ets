@@ -90,3 +90,33 @@ export function urlToPixelMap(url: string): Promise<PixelMap> {
     })
   })
 }
+
+/**
+ * 计算明亮度
+ * @param pixelMap
+ * @returns
+ */
+export async function calculateLuminance(pixelMap: PixelMap): Promise<number> {
+  let pixelBytesNumber: number = pixelMap.getPixelBytesNumber()
+  let readPixelsToBuffer = new ArrayBuffer(pixelBytesNumber);
+  await pixelMap.readPixelsToBuffer(readPixelsToBuffer)
+  const unit8Pixels: Uint8Array = new Uint8Array(readPixelsToBuffer);
+  let darkCount = 0
+  for (let i = 0; i < unit8Pixels.length; i += 4) {
+    const red = unit8Pixels[i+2];
+    const green = unit8Pixels[i+1];
+    const blue = unit8Pixels[i];
+    const alpha = unit8Pixels[i+3]
+    // 计算Luminance值
+    // const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue);
+    const luminance = (0.3 * red + 0.59 * green + 0.11 * blue);
+    // 根据luminance值进行灰阶值分割
+    if (luminance < 128) {
+      // 低于128的部分为黑色
+      darkCount++
+    } else {
+      // 高于或等于128的部分为白色
+    }
+  }
+  return (darkCount / unit8Pixels.length) / 0.25
+}

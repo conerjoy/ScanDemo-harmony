@@ -4,7 +4,7 @@
  */
 import { ScanBottomLeftRect, ScanBottomRightRect, ScanTopLeftRect, ScanTopRightRect } from './ScanRectView'
 import { customScan, scanBarcode, scanCore } from '@kit.ScanKit'
-import { display } from '@kit.ArkUI'
+import { componentSnapshot, display } from '@kit.ArkUI'
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit'
 import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
@@ -12,6 +12,8 @@ import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
 import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
 import { ResultState } from '../util/ResultState'
+import { image } from '@kit.ImageKit'
+import { calculateLuminance } from '../util/ImageUtil'
 
 @Component
 export struct Scanner {
@@ -52,6 +54,8 @@ export struct Scanner {
   @Prop scanTypes: Array<scanCore.ScanType> = [scanCore.ScanType.ALL] // 扫描类型
   @Prop safeAreaType?: Array<SafeAreaType> = [SafeAreaType.SYSTEM]
   @Prop safeAreaEdge?: Array<SafeAreaEdge> = [SafeAreaEdge.BOTTOM]
+  @Prop luminanceAnalyzerInterval: number = 1000 // 亮度检测时间间隔
+  luminanceListener?: (luminance: number) => void
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
   areaOffset: number = 100 // 二维码在框中的偏移量
   controller?: ScannerController // 扫码控制类
@@ -74,6 +78,7 @@ export struct Scanner {
   @State firstShow: boolean = true // 页面第一次显示
   @State isRelease: boolean = false // 是否已经回收资源了
   @State isFirstScanSuccess: boolean = false // 是否第一次扫码成功
+  private luminanceAnalyzerId: number = 0 // 亮度分析任务id
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (this.isRelease) {
       return
@@ -107,6 +112,21 @@ export struct Scanner {
     }
     if (!this.isRelease) {
       this.rescan()
+    }
+  }
+
+  /**
+   * 启动视频帧分析
+   */
+  private startAnalyzer() {
+    if (!this.luminanceAnalyzerId) {
+      this.luminanceAnalyzerId = setInterval(() => {
+        componentSnapshot.get('xComponent', (err: Error, pixmap: image.PixelMap) => {
+          calculateLuminance(pixmap).then((percent) => {
+            this.luminanceListener?.(percent)
+          })
+        })
+      }, this.luminanceAnalyzerInterval)
     }
   }
 
@@ -401,9 +421,15 @@ export struct Scanner {
           this.startScan()
         }
         this.firstShow = false
+        if (this.luminanceListener) {
+          this.startAnalyzer()
+        }
       }
       if (!isVisible && currentRatio <= 0) {
         this.releaseScan()
+        if (this.luminanceAnalyzerId) {
+          clearInterval(this.luminanceAnalyzerId)
+        }
       }
     })
     .expandSafeArea(this.safeAreaType, this.safeAreaEdge)
@@ -639,6 +665,7 @@ export struct Scanner {
       type: XComponentType.SURFACE,
       controller: this.mXComponentController
     })
+      .id('xComponent')
       .onLoad(() => {
         // 获取XComponent的surfaceId
         this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
