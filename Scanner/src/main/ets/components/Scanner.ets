@@ -117,21 +117,6 @@ export struct Scanner {
     }
   }
 
-  /**
-   * 启动视频帧分析
-   */
-  private startAnalyzer() {
-    if (!this.luminanceAnalyzerId) {
-      this.luminanceAnalyzerId = setInterval(() => {
-        image.createPixelMapFromSurface(this.surfaceId, { x: 0, y: 0, size: { height: this.defaultHeight, width: this.defaultHeight } }).then((pixmap) => {
-          calculateLuminance(pixmap).then((percent) => {
-            this.luminanceListener?.(percent)
-          })
-        })
-      }, this.luminanceAnalyzerInterval)
-    }
-  }
-
   aboutToAppear(): void {
     this.controller?.init(this)
     this.scanRectLeftBoundary = (this.screenWidth - this.scannerSize) / 2.0 //扫码框左边的边距
@@ -402,6 +387,21 @@ export struct Scanner {
       }
     } catch (e) {
       console.warn(e)
+    }
+  }
+
+  /**
+   * 启动视频帧分析
+   */
+  private startAnalyzer() {
+    if (!this.luminanceAnalyzerId) {
+      this.luminanceAnalyzerId = setInterval(() => {
+        image.createPixelMapFromSurface(this.surfaceId, { x: 0, y: 0, size: { height: this.defaultHeight, width: this.defaultHeight } }).then((pixmap) => {
+          calculateLuminance(pixmap).then((percent) => {
+            this.luminanceListener?.(percent)
+          })
+        })
+      }, this.luminanceAnalyzerInterval)
     }
   }
 

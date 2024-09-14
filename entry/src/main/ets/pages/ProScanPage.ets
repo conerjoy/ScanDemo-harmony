@@ -49,6 +49,9 @@ export struct ProScanPage {
         pointView: this.PointView,
         scanTypes: [scanCore.ScanType.QR_CODE],
         // onceScan: true,
+        luminanceListener: (percent) => {
+          promptAction.showToast({message: percent >= 1 ? '显示手电筒' : '隐藏手电筒'})
+        },
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })

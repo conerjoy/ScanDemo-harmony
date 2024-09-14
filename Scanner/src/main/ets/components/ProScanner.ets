@@ -11,6 +11,8 @@ import { picker } from '@kit.CoreFileKit'
 import { ScanUtil } from '../util/ScanUtil'
 import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
 import { ResultState } from '../util/ResultState'
+import { image } from '@kit.ImageKit'
+import { calculateLuminance } from '../util/ImageUtil'
 
 @Component
 export struct ProScanner {
@@ -43,6 +45,8 @@ export struct ProScanner {
   @Prop safeAreaType?: Array<SafeAreaType> = [SafeAreaType.SYSTEM]
   @Prop safeAreaEdge?: Array<SafeAreaEdge> = [SafeAreaEdge.BOTTOM]
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
+  @Prop luminanceAnalyzerInterval: number = 1000 // 亮度检测时间间隔
+  luminanceListener?: (luminance: number) => void
   controller?: ProScannerController // 扫码控制类
   onFindMultipleCode?: (result: scanBarcode.ScanResult[]) => void; //发现多码回调函数
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
@@ -63,6 +67,7 @@ export struct ProScanner {
   @State isStop: boolean = false // 扫描模块是否已经被停止了
   @State isRelease: boolean = false // 是否已经回收资源了
   @State isFirstScanSuccess: boolean = false // 是否第一次扫码成功
+  private luminanceAnalyzerId: number = 0 // 亮度分析任务id
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
     if (this.isRelease) {
       return
@@ -378,6 +383,21 @@ export struct ProScanner {
     }
   }
 
+  /**
+   * 启动视频帧分析
+   */
+  private startAnalyzer() {
+    if (!this.luminanceAnalyzerId) {
+      this.luminanceAnalyzerId = setInterval(() => {
+        image.createPixelMapFromSurface(this.surfaceId, { x: 0, y: 0, size: { height: this.defaultHeight, width: this.defaultHeight } }).then((pixmap) => {
+          calculateLuminance(pixmap).then((percent) => {
+            this.luminanceListener?.(percent)
+          })
+        })
+      }, this.luminanceAnalyzerInterval)
+    }
+  }
+
   build() {
     Stack() {
       this.Camera()
@@ -395,9 +415,16 @@ export struct ProScanner {
           this.startScan()
         }
         this.firstShow = false
+        if (this.luminanceListener) {
+          this.startAnalyzer()
+        }
       }
       if (!isVisible && currentRatio <= 0) {
         this.releaseScan()
+        if (this.luminanceAnalyzerId) {
+          clearInterval(this.luminanceAnalyzerId)
+          this.luminanceAnalyzerId = 0
+        }
       }
     })
     .expandSafeArea(this.safeAreaType, this.safeAreaEdge)
