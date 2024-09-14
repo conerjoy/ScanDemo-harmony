@@ -46,7 +46,7 @@ export struct ProScanner {
   @Prop safeAreaEdge?: Array<SafeAreaEdge> = [SafeAreaEdge.BOTTOM]
   @BuilderParam pointView: CustomBuilder = this.PointView // 多码标志点自定义UI
   @Prop luminanceAnalyzerInterval: number = 1000 // 亮度检测时间间隔
-  luminanceListener?: (luminance: number) => void
+  luminanceListener?: (luminance: number) => void // 亮度检测监听
   controller?: ProScannerController // 扫码控制类
   onFindMultipleCode?: (result: scanBarcode.ScanResult[]) => void; //发现多码回调函数
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数

@@ -55,7 +55,7 @@ export struct Scanner {
   @Prop safeAreaType?: Array<SafeAreaType> = [SafeAreaType.SYSTEM]
   @Prop safeAreaEdge?: Array<SafeAreaEdge> = [SafeAreaEdge.BOTTOM]
   @Prop luminanceAnalyzerInterval: number = 1000 // 亮度检测时间间隔
-  luminanceListener?: (luminance: number) => void
+  luminanceListener?: (luminance: number) => void // 亮度检测监听
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
   areaOffset: number = 100 // 二维码在框中的偏移量
   controller?: ScannerController // 扫码控制类
