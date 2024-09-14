@@ -4,7 +4,7 @@
  */
 import { ScanBottomLeftRect, ScanBottomRightRect, ScanTopLeftRect, ScanTopRightRect } from './ScanRectView'
 import { customScan, scanBarcode, scanCore } from '@kit.ScanKit'
-import { componentSnapshot, display } from '@kit.ArkUI'
+import { display } from '@kit.ArkUI'
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit'
 import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
@@ -67,8 +67,10 @@ export struct Scanner {
   private mXComponentController: XComponentController = new XComponentController()
   private surfaceId?: string; //内部实现，不需要初始化
   private viewControl?: customScan.ViewControl ///内部实现，不需要初始化
-  @State screenWidth: number = 360
-  @State screenHeight: number = 640
+  private defaultWidth: number = 360
+  private defaultHeight: number = 640
+  @State screenWidth: number = this.defaultWidth
+  @State screenHeight: number = this.defaultHeight
   @State @Watch("startScan") isLoaded: boolean = false //相机组件是否加载成功
   @State isLightOpen: boolean = false //打开闪光灯
   @State scanRectLeftBoundary: number = 0
@@ -121,7 +123,7 @@ export struct Scanner {
   private startAnalyzer() {
     if (!this.luminanceAnalyzerId) {
       this.luminanceAnalyzerId = setInterval(() => {
-        componentSnapshot.get('xComponent', (err: Error, pixmap: image.PixelMap) => {
+        image.createPixelMapFromSurface(this.surfaceId, { x: 0, y: 0, size: { height: this.defaultHeight, width: this.defaultHeight } }).then((pixmap) => {
           calculateLuminance(pixmap).then((percent) => {
             this.luminanceListener?.(percent)
           })
@@ -429,6 +431,7 @@ export struct Scanner {
         this.releaseScan()
         if (this.luminanceAnalyzerId) {
           clearInterval(this.luminanceAnalyzerId)
+          this.luminanceAnalyzerId = 0
         }
       }
     })
@@ -665,7 +668,6 @@ export struct Scanner {
       type: XComponentType.SURFACE,
       controller: this.mXComponentController
     })
-      .id('xComponent')
       .onLoad(() => {
         // 获取XComponent的surfaceId
         this.surfaceId = this.mXComponentController.getXComponentSurfaceId();

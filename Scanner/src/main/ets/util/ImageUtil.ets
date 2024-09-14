@@ -96,13 +96,15 @@ export function urlToPixelMap(url: string): Promise<PixelMap> {
  * @param pixelMap
  * @returns
  */
-export async function calculateLuminance(pixelMap: PixelMap): Promise<number> {
+export async function calculateLuminance(pixelMap: PixelMap, precise: boolean = false): Promise<number> {
   let pixelBytesNumber: number = pixelMap.getPixelBytesNumber()
   let readPixelsToBuffer = new ArrayBuffer(pixelBytesNumber);
   await pixelMap.readPixelsToBuffer(readPixelsToBuffer)
   const unit8Pixels: Uint8Array = new Uint8Array(readPixelsToBuffer);
   let darkCount = 0
-  for (let i = 0; i < unit8Pixels.length; i += 4) {
+  const step = precise ? 4 : 16
+  const sum = precise ? 0.25 : 0.0625
+  for (let i = 0; i < unit8Pixels.length; i += step) {
     const red = unit8Pixels[i+2];
     const green = unit8Pixels[i+1];
     const blue = unit8Pixels[i];
@@ -118,5 +120,5 @@ export async function calculateLuminance(pixelMap: PixelMap): Promise<number> {
       // 高于或等于128的部分为白色
     }
   }
-  return (darkCount / unit8Pixels.length) / 0.25
+  return (darkCount / unit8Pixels.length) / sum
 }
