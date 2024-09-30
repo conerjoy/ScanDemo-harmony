@@ -64,7 +64,7 @@ struct Index {
           promptAction.showToast({ message: '摄像头权限被拒绝' })
         }
       })
-        // .width(200)
+        // .width('100%')
         // .height(200)
         .layoutWeight(1)
     }.width('100%')

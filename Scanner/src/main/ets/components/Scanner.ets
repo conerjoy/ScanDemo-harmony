@@ -672,7 +672,7 @@ export struct Scanner {
         // 获取XComponent的surfaceId
         this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
         this.mXComponentController.setXComponentSurfaceRect({
-          surfaceWidth: display.getDefaultDisplaySync().width,
+          surfaceWidth: display.getDefaultDisplaySync().height * (this.defaultWidth / this.defaultHeight),
           surfaceHeight: display.getDefaultDisplaySync().height
         })
         // 设置ViewControl相应字段
