@@ -14,6 +14,7 @@ import { ScannerControllerInterface } from '../util/ScannerControllerInterface'
 import { ResultState } from '../util/ResultState'
 import { image } from '@kit.ImageKit'
 import { calculateLuminance } from '../util/ImageUtil'
+import { photoAccessHelper } from '@kit.MediaLibraryKit'
 
 @Component
 export struct Scanner {
@@ -134,11 +135,11 @@ export struct Scanner {
    */
   pickPhoto() {
     // 通过picker拉起图库的图片
-    let photoOption = new picker.PhotoSelectOptions();
-    photoOption.MIMEType = picker.PhotoViewMIMETypes.IMAGE_TYPE;
-    photoOption.maxSelectNumber = 1;
-    let photoPicker = new picker.PhotoViewPicker();
-    photoPicker.select(photoOption).then((result) => {
+    const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
+    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE
+    photoSelectOptions.maxSelectNumber = 1;
+    const photoViewPicker = new photoAccessHelper.PhotoViewPicker();
+    photoViewPicker.select(photoSelectOptions).then(async (result: photoAccessHelper.PhotoSelectResult) => {
       this.scanUri(result.photoUris[0])
     })
   }
