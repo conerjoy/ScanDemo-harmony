@@ -18,7 +18,7 @@
 - 导入
 
 ```typescript
-import { Scanner, ScannerController } from '@coner/Scanner';
+import { ResultState, Scanner, ScannerController, ScanUtil } from '@coner/Scanner';
 ```
 
 - 使用
@@ -46,7 +46,7 @@ Scanner({
 - 导入
 
 ```typescript
-import { ProScanner, ProScannerController } from '@ohos/Scanner'
+import { ProScanner, ProScannerController, ResultState } from '@coner/Scanner'
 ```
 
 - 使用
@@ -306,6 +306,18 @@ PointView() {
   // 自定义UI样式
 }
 ```
+
+## 可能遇到的问题
+***
+### 扫码识别不了、扫码识别没反应
+请设置disableCheckArea参数为true。<br>
+disableCheckArea参数说明：是否禁止检查二维码在框中。<br>
+可能是二维码不完全在扫码框中，或因为屏幕尺寸问题导致计算得到的二维码位置未在扫码框中。
+
+### 二维码是微信小程序码
+微信小程序码只能被微信识别，组件识别不了属于正常表现。
+
+
 
 ## 交流催更
 
