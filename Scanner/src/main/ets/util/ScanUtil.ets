@@ -1,6 +1,7 @@
 import { ImageUtil } from './ImageUtil'
 import { detectBarcode, scanBarcode, scanCore } from '@kit.ScanKit'
 import { BusinessError } from '@kit.BasicServicesKit'
+import { common } from '@kit.AbilityKit'
 
 /**
  * @author coner
@@ -11,12 +12,12 @@ export class ScanUtil {
    * 扫描网络url
    * @param url
    */
-  static async scanUrl(url: string, options: scanBarcode.ScanOptions = {
+  static async scanUrl(context: common.UIAbilityContext, url: string, options: scanBarcode.ScanOptions = {
     scanTypes: [scanCore.ScanType.ALL],
     enableMultiMode: true,
     enableAlbum: true
   }): Promise<string> {
-    const uri = await ImageUtil.saveImageByUrl(url)
+    const uri = await ImageUtil.saveImageByUrl(context, url)
     return ScanUtil.scanUri(uri, options)
   }
 
@@ -24,12 +25,12 @@ export class ScanUtil {
    * 扫描图片PixelMap
    * @param pixelMap
    */
-  static async scanPixelMap(pixelMap: PixelMap, options: scanBarcode.ScanOptions = {
+  static async scanPixelMap(context: common.UIAbilityContext, pixelMap: PixelMap, options: scanBarcode.ScanOptions = {
     scanTypes: [scanCore.ScanType.ALL],
     enableMultiMode: true,
     enableAlbum: true
   }): Promise<string> {
-    const uri = await ImageUtil.saveImageByPixelMap(pixelMap)
+    const uri = await ImageUtil.saveImageByPixelMap(context, pixelMap)
     return ScanUtil.scanUri(uri, options)
   }
 

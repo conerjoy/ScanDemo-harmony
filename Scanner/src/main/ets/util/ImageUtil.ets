@@ -8,26 +8,22 @@ import { BusinessError } from '@kit.BasicServicesKit'
 import common from '@ohos.app.ability.common';
 import { fileIo, fileUri } from '@kit.CoreFileKit';
 
-
-// 获取应用文件路径
-let context = getContext(this) as common.UIAbilityContext;
-let cacheDir = context.cacheDir;
 const scanImageName = 'scan-step.jpg' // 沙盒内固定名称图片文件
 
 export class ImageUtil {
-  static async saveImageByUrl(url: string): Promise<string> {
+  static async saveImageByUrl(context: common.UIAbilityContext, url: string): Promise<string> {
     const pixelMap = await urlToPixelMap(url)
-    return ImageUtil.saveImageByPixelMap(pixelMap)
+    return ImageUtil.saveImageByPixelMap(context, pixelMap)
   }
 
-  static async saveImageByPixelMap(pixelMap: PixelMap): Promise<string> {
-    const uri = await ImageUtil.createImageFile(pixelMap)
+  static async saveImageByPixelMap(context: common.UIAbilityContext, pixelMap: PixelMap): Promise<string> {
+    const uri = await ImageUtil.createImageFile(context, pixelMap)
     return uri
   }
 
-  static async createImageFile(pixelMap: PixelMap): Promise<string> {
+  static async createImageFile(context: common.UIAbilityContext, pixelMap: PixelMap): Promise<string> {
     const imgBuffer = await ImageUtil.transferPixelMap2Buffer(pixelMap)
-    const file = fileIo.openSync(cacheDir + '/' + scanImageName,
+    const file = fileIo.openSync(context.cacheDir + '/' + scanImageName,
       fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
     await fileIo.write(file.fd, imgBuffer);
     await fileIo.close(file.fd);

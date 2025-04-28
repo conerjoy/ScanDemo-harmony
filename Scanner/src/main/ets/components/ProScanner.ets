@@ -263,7 +263,7 @@ export struct ProScanner {
     enableMultiMode: true,
     enableAlbum: true
   }) {
-    const res = ScanUtil.scanUrl(url, options)
+    const res = ScanUtil.scanUrl(getContext(this) as common.UIAbilityContext, url, options)
     this.scanPromiseHandler(res)
   }
 
@@ -276,7 +276,7 @@ export struct ProScanner {
     enableMultiMode: true,
     enableAlbum: true
   }) {
-    const res = ScanUtil.scanPixelMap(pixelMap, options)
+    const res = ScanUtil.scanPixelMap(getContext(this) as common.UIAbilityContext, pixelMap, options)
     this.scanPromiseHandler(res)
   }
 

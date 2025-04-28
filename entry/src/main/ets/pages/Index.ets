@@ -1,6 +1,7 @@
 import { ResultState, Scanner, ScannerController, ScanUtil } from '@ohos/Scanner';
 import { promptAction, router } from '@kit.ArkUI';
 import { scanCore } from '@kit.ScanKit';
+import { common } from '@kit.AbilityKit';
 
 @Entry
 @Component
@@ -128,7 +129,7 @@ struct Index {
    * @param url
    */
   scanNetImage2(url: string) {
-    ScanUtil.scanUrl(url)
+    ScanUtil.scanUrl(getContext(this) as common.UIAbilityContext, url)
       .then((res) => {
         promptAction.showToast({ message: res })
       })
@@ -152,7 +153,7 @@ struct Index {
    * @param url
    */
   scanPixelMap2(pixelMap: PixelMap) {
-    ScanUtil.scanPixelMap(pixelMap)
+    ScanUtil.scanPixelMap(getContext(this) as common.UIAbilityContext, pixelMap)
       .then((res) => {
         promptAction.showToast({ message: res })
       })
