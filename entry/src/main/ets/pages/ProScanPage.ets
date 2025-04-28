@@ -55,6 +55,8 @@ export struct ProScanPage {
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
+          } else {
+            promptAction.showToast({ message: '扫码失败' + value })
           }
         }
       })

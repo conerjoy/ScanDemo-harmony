@@ -24,6 +24,20 @@ struct Index {
             }
           })
 
+        Text('空白页')
+          .alignSelf(ItemAlign.Start)
+          .height(44)
+          .id('empty')
+          .alignRules({
+            left: {
+              anchor: '__container__',
+              align: HorizontalAlign.Start
+            }
+          })
+          .onClick(() => {
+            router.pushUrl({ url: 'pages/EmptyPage' })
+          })
+
         Text('多码扫描')
           .alignSelf(ItemAlign.End)
           .height(44)
@@ -39,7 +53,7 @@ struct Index {
           })
       }.width('100%')
       .height(80)
-      .padding({ right: 10, top: 36 })
+      .padding({ right: 10, top: 36, left: 10, })
 
       Scanner({
         scanTypes: [scanCore.ScanType.QR_CODE],
@@ -58,6 +72,8 @@ struct Index {
         onScanResult: (code: ResultState, value: string) => {
           if (code == ResultState.Success) {
             promptAction.showToast({ message: value })
+          } else {
+            promptAction.showToast({ message: '扫码失败' + value })
           }
         },
         onCameraReject: () => {

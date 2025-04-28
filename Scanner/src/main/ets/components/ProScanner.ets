@@ -67,14 +67,18 @@ export struct ProScanner {
   @State isStop: boolean = false // 扫描模块是否已经被停止了
   @State isRelease: boolean = false // 是否已经回收资源了
   @State isFirstScanSuccess: boolean = false // 是否第一次扫码成功
+  private scanConsumed: boolean = true // 扫码是否已经消费了
   private luminanceAnalyzerId: number = 0 // 亮度分析任务id
   private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
+    this.scanConsumed = true
     if (this.isRelease) {
       return
     }
     if (error) {
       console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
-      this.onScanResult?.(ResultState.Fail, error.message);
+      if (error.code != 1000500001) { // 内部错误
+        this.onScanResult?.(ResultState.Fail, error.message);
+      }
       if (!this.isRelease) {
         this.rescan()
       }
@@ -337,12 +341,15 @@ export struct ProScanner {
             enableAlbum: true
           };
           try {
-            //初始化相机
-            customScan.init(options)
-            //打开相机
-            customScan.start(this.viewControl, this.callback);
-            this.points = []
-            this.isRelease = false
+            if (this.scanConsumed) {
+              //初始化相机
+              customScan.init(options)
+              //打开相机
+              customScan.start(this.viewControl, this.callback);
+              this.points = []
+              this.scanConsumed = false
+              this.isRelease = false
+            }
           } catch (e) {
             console.warn(e)
           }
@@ -361,18 +368,19 @@ export struct ProScanner {
    */
   releaseScan() {
     this.isRelease = true
+    this.scanConsumed = true
     try {
       if (canIUse('SystemCapability.Multimedia.Scan.Core')) {
         customScan.stop().then(() => {
           console.log('相机停止成功')
         }).catch((error: BusinessError) => {
-          console.warn(`停止失败, code: ${error.code}, message: ${error.message}`)
+          // console.warn(`停止失败, code: ${error.code}, message: ${error.message}`)
         });
 
         customScan.release().then(() => {
           console.log('相机释放成功')
         }).catch((error: BusinessError) => {
-          console.warn(`相机释放失败, code: ${error.code}, message: ${error.message}`)
+          // console.warn(`相机释放失败, code: ${error.code}, message: ${error.message}`)
         })
       } else {
         console.warn('不支持扫码');

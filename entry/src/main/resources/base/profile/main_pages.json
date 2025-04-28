@@ -1,6 +1,7 @@
 {
   "src": [
     "pages/Index",
-    "pages/ProScanPage"
+    "pages/ProScanPage",
+    "pages/EmptyPage"
   ]
 }
