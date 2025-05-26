@@ -69,3 +69,6 @@
 - 修复偶现的cannot read property cacheDor of undefined
 - 修复首次提示内部错误
 - 避免内部错误提示给用户
+
+**[v1.1.8] 2025.05.26**<br>
+- 提供defaultWidth、defaultHeight设置入口

@@ -84,6 +84,8 @@ ohpm i @coner/scanner
 
 |            字段名            |                     类型                     |                 默认值                 |         说明          |
 |:-------------------------:|:------------------------------------------:|:-----------------------------------:|:-------------------:|
+|       defaultWidth        |                   number                   |                 360                 |       组件默认宽度        |
+|       defaultHeight       |                   number                   |                 640                 |       组件默认高度        |
 |        albumsShow         |                  boolean                   |                true                 |       相册是否显示        |
 |        albumsIcon         |                ResourceStr                 |   $r('app.media.scanner_albums')    |        相册图标         |
 |      albumsIconSize       |                   Length                   |                 64                  |       相册图标大小        |
@@ -161,6 +163,8 @@ this.scannerController.scanUrl(url) // 扫码结果回调到Scanner组件的onSc
 
 |            字段名            |                     类型                     |                 默认值                 |         说明          |
 |:-------------------------:|:------------------------------------------:|:-----------------------------------:|:-------------------:|
+|       defaultWidth        |                   number                   |                 360                 |       组件默认宽度        |
+|       defaultHeight       |                   number                   |                 640                 |       组件默认高度        |
 |        albumsShow         |                  boolean                   |                true                 |       相册是否显示        |
 |        albumsIcon         |                ResourceStr                 |   $r('app.media.scanner_albums')    |        相册图标         |
 |      albumsIconSize       |                   Length                   |                 64                  |       相册图标大小        |
@@ -317,12 +321,8 @@ disableCheckArea参数说明：是否禁止检查二维码在框中。<br>
 ### 二维码是微信小程序码
 微信小程序码只能被微信识别，组件识别不了属于正常表现。
 
+### 图像变形
+组件初始化时根据实际要求设置defaultWidth、defaultHeight的值，不要求精准，主要用于视频流的宽高比。
 
-
-## 交流催更
-
-QQ君羊: 571144615
-
-![qq群](https://communityfile-drcn.op.hicloud.com/FileServer/getFile/cmtybbstemp/20240807/cmtybbs/752/372/949/0030086000752372949.20240807215423.49520007517393891101454977556817:20240807225423:2800:0C84955B1E6A66D85941A39F69CA7BFF669BACE5249CF688D6176C5BB49CB6E8.jpg)
 
 ## 感谢支持
