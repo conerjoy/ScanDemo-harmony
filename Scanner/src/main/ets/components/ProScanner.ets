@@ -56,8 +56,8 @@ export struct ProScanner {
   private mXComponentController: XComponentController = new XComponentController()
   private surfaceId?: string; //内部实现，不需要初始化
   private viewControl?: customScan.ViewControl ///内部实现，不需要初始化
-  private defaultWidth: number = 360
-  private defaultHeight: number = 640
+  @State defaultWidth: number = 360
+  @State defaultHeight: number = 640
   @State screenWidth: number = this.defaultWidth
   @State screenHeight: number = this.defaultHeight
   @State @Watch("startScan") isLoaded: boolean = false //相机组件是否加载成功
