@@ -58,7 +58,7 @@ export struct Scanner {
   @Prop luminanceAnalyzerInterval: number = 1000 // 亮度检测时间间隔
   luminanceListener?: (luminance: number) => void // 亮度检测监听
   disableCheckArea: boolean = false // 是否禁止检查二维码在框中
-  areaOffset: number = 100 // 二维码在框中的偏移量
+  @Prop areaOffset: number = 100 // 二维码在框中的偏移量
   controller?: ScannerController // 扫码控制类
   onScanResult?: (code: ResultState, value: string) => void; //扫码结果回调函数
   onCameraGrant?: () => void // 摄像头权限同意回调
@@ -81,46 +81,52 @@ export struct Scanner {
   @State firstShow: boolean = true // 页面第一次显示
   @State isRelease: boolean = false // 是否已经回收资源了
   @State isFirstScanSuccess: boolean = false // 是否第一次扫码成功
+  @State scanRectTransForm: boolean = false // 默认禁止扫码结果位置信息进行px转换
   private scanConsumed: boolean = true // 扫码是否已经消费了
   private luminanceAnalyzerId: number = 0 // 亮度分析任务id
-  private callback: AsyncCallback<scanBarcode.ScanResult[]> = async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
-    this.scanConsumed = true // 重置为未启动状态，等待重新启动
-    if (this.isRelease) {
-      return
-    }
-    if (error) {
-      console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
-      if (error.code != 1000500001) {
-        this.onScanResult?.(ResultState.Fail, error.message);
+  private callback: AsyncCallback<scanBarcode.ScanResult[]> =
+    async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
+      this.scanConsumed = true // 重置为未启动状态，等待重新启动
+      if (this.isRelease) {
+        return
+      }
+      if (error) {
+        console.warn(`扫描错误, code: ${error.code}, message: ${error.message}`);
+        if (error.code != 1000500001) {
+          this.onScanResult?.(ResultState.Fail, error.message);
+        }
+        if (!this.isRelease) {
+          this.rescan()
+        }
+        return;
+      }
+
+      console.log(`扫描成功, result: ${JSON.stringify(result)}`);
+      if (result) {
+        let scanCodeRect = result[0]?.scanCodeRect;
+        if (scanCodeRect != undefined && (this.disableCheckArea ||
+        this.isInScanRect(this.scanRectTransForm ? px2vp(scanCodeRect.left) : scanCodeRect.left,
+          this.scanRectTransForm ? px2vp(scanCodeRect.top) : scanCodeRect.top,
+          this.scanRectTransForm ? px2vp(scanCodeRect.right) : scanCodeRect.right,
+          this.scanRectTransForm ? px2vp(scanCodeRect.bottom) : scanCodeRect.bottom))) {
+          if (result[0]?.originalValue != undefined) {
+            if (this.onceScan) {
+              if (!this.isFirstScanSuccess) {
+                this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
+              }
+              this.isFirstScanSuccess = true
+            } else {
+              this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
+            }
+          } else {
+            this.onScanResult?.(ResultState.Fail, '扫描错误');
+          }
+        }
       }
       if (!this.isRelease) {
         this.rescan()
       }
-      return;
     }
-
-    console.log(`扫描成功, result: ${JSON.stringify(result)}`);
-    if (result) {
-      let scanCodeRect = result[0]?.scanCodeRect;
-      if (scanCodeRect != undefined && (this.disableCheckArea || this.isInScanRect(px2vp(scanCodeRect.left), px2vp(scanCodeRect.top), px2vp(scanCodeRect.right), px2vp(scanCodeRect.bottom)))) {
-        if (result[0]?.originalValue != undefined) {
-          if (this.onceScan) {
-            if (!this.isFirstScanSuccess) {
-              this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
-            }
-            this.isFirstScanSuccess = true
-          } else {
-            this.onScanResult?.(ResultState.Success, result[0]?.originalValue);
-          }
-        } else {
-          this.onScanResult?.(ResultState.Fail, '扫描错误');
-        }
-      }
-    }
-    if (!this.isRelease) {
-      this.rescan()
-    }
-  }
 
   aboutToAppear(): void {
     this.controller?.init(this)
@@ -405,7 +411,8 @@ export struct Scanner {
   private startAnalyzer() {
     if (!this.luminanceAnalyzerId) {
       this.luminanceAnalyzerId = setInterval(() => {
-        image.createPixelMapFromSurface(this.surfaceId, { x: 0, y: 0, size: { height: this.defaultHeight, width: this.defaultHeight } }).then((pixmap) => {
+        image.createPixelMapFromSurface(this.surfaceId,
+          { x: 0, y: 0, size: { height: this.defaultHeight, width: this.defaultHeight } }).then((pixmap) => {
           calculateLuminance(pixmap).then((percent) => {
             this.luminanceListener?.(percent)
           })
