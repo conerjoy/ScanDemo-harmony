@@ -72,3 +72,6 @@
 
 **[v1.1.8] 2025.05.26**<br>
 - 提供defaultWidth、defaultHeight设置入口
+
+**[v1.1.9] 2025.05.29**<br>
+- 修复isInScanRect方法计算不准确的问题
