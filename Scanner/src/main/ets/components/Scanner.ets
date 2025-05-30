@@ -5,7 +5,7 @@
 import { ScanBottomLeftRect, ScanBottomRightRect, ScanTopLeftRect, ScanTopRightRect } from './ScanRectView'
 import { customScan, scanBarcode, scanCore } from '@kit.ScanKit'
 import { display } from '@kit.ArkUI'
-import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit'
+import { AsyncCallback, BusinessError, deviceInfo } from '@kit.BasicServicesKit'
 import { requestPermissionsFromUser } from '../util/PermissionUtil'
 import { common } from '@kit.AbilityKit'
 import { picker } from '@kit.CoreFileKit'
@@ -84,6 +84,7 @@ export struct Scanner {
   @State scanRectTransForm: boolean = false // 默认禁止扫码结果位置信息进行px转换
   private scanConsumed: boolean = true // 扫码是否已经消费了
   private luminanceAnalyzerId: number = 0 // 亮度分析任务id
+  private sdkApiVersionInfo: number = 11 // sdk版本
   private callback: AsyncCallback<scanBarcode.ScanResult[]> =
     async (error: BusinessError, result: scanBarcode.ScanResult[]) => {
       this.scanConsumed = true // 重置为未启动状态，等待重新启动
@@ -129,6 +130,7 @@ export struct Scanner {
     }
 
   aboutToAppear(): void {
+    this.sdkApiVersionInfo = deviceInfo.sdkApiVersion;
     this.controller?.init(this)
     this.scanRectLeftBoundary = (this.screenWidth - this.scannerSize) / 2.0 //扫码框左边的边距
     this.scanRectRightBoundary = this.scanRectLeftBoundary + this.scannerSize //扫码框右边的边距
@@ -329,11 +331,15 @@ export struct Scanner {
     setTimeout(() => {
       if (!this.isRelease) {
         try {
-          customScan.stop().then(() => {
-            customScan.start(this.viewControl, this.callback);
-          }).catch(() => {
-            customScan.start(this.viewControl, this.callback);
-          })
+          if (this.sdkApiVersionInfo >= 12) {
+            customScan.rescan();
+          } else {
+            customScan.stop().then(() => {
+              customScan.start(this.viewControl, this.callback);
+            }).catch(() => {
+              customScan.start(this.viewControl, this.callback);
+            })
+          }
           this.isRelease = false
         } catch (e) {
           console.warn(e)
